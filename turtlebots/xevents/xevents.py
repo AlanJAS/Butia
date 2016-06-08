@@ -624,6 +624,19 @@ class Xevents(Plugin):
           Primitive(self.debounce, arg_descs=[ArgSlot(TYPE_STRING),
                                               ArgSlot(TYPE_NUMBER)]))
 
+        palette2.add_block('edgeDetector',
+                        style='number-style-block',
+                        label=[_('edge detector'), _('name'), _('button') ],
+                        default=["name"],
+                        help_string=_('Edge Detector - The name must be unique'),
+                        prim_name='edge_detector')
+        
+
+        self._parent.lc.def_prim(
+          'edge_detector', 2,
+          Primitive(self.edge_detector, arg_descs=[ArgSlot(TYPE_STRING),
+                                              ArgSlot(TYPE_NUMBER)]))
+
         palette2.add_block('openBrowser',
                           style='basic-style-1arg',
                           label=_('openBrowser'),
@@ -700,17 +713,22 @@ class Xevents(Plugin):
         self._parent.lc.def_prim(
           'default_value', 2,
           #save a color
-          or_(Primitive(self.default_value,
-                          arg_descs=[ArgSlot(TYPE_STRING),
-                                     ArgSlot(TYPE_COLOR)]),
-                # ... or save a number
-                Primitive(self.default_value,
-                          arg_descs=[ArgSlot(TYPE_STRING),
-                                     ArgSlot(TYPE_NUMBER)]),
-                # ... or save a string
-                Primitive(self.default_value,
-                          arg_descs=[ArgSlot(TYPE_STRING),
-                                     ArgSlot(TYPE_STRING)]) ))
+          Primitive(self.default_value,
+                          arg_descs=or_(
+                              [ArgSlot(TYPE_STRING),ArgSlot(TYPE_COLOR)],
+                              [ArgSlot(TYPE_STRING),ArgSlot(TYPE_NUMBER)],
+                              [ArgSlot(TYPE_STRING),ArgSlot(TYPE_STRING)]) ))
+          # or_(Primitive(self.default_value,
+          #                 arg_descs=[ArgSlot(TYPE_STRING),
+          #                            ArgSlot(TYPE_COLOR)]),
+          #       # ... or save a number
+          #       Primitive(self.default_value,
+          #                 arg_descs=[ArgSlot(TYPE_STRING),
+          #                            ArgSlot(TYPE_NUMBER)]),
+          #       # ... or save a string
+          #       Primitive(self.default_value,
+          #                 arg_descs=[ArgSlot(TYPE_STRING),
+          #                            ArgSlot(TYPE_STRING)]) ))
         
         palette2.add_block('setProgramName',
                            style='basic-style-1arg',
@@ -791,6 +809,9 @@ class Xevents(Plugin):
     def browser(self, url):
         self._events.browser(url)
 
+    def combine_keys(self, key1, key2):
+      return key1 + " " + key2 
+
     def _listMode(self, l):
 
         data = Counter(l)
@@ -799,9 +820,6 @@ class Xevents(Plugin):
             return data.most_common(1)[0][0] # Returns the highest occurring item
         else:
             return 0
-
-    def combine_keys(self, key1, key2):
-      return key1 + " " + key2 
 
     def debounce(self, buttonName, buttonState):
 
@@ -823,6 +841,34 @@ class Xevents(Plugin):
         return 1      
       else:
         return 0
+
+
+    def edge_detector(self, buttonName, buttonState):
+
+      falling_edge = 0;
+      rising_edge = 0
+
+      if not self._buttons.has_key(buttonName):
+        self._buttons[buttonName] = []
+        self._buttons[buttonName].append(0)
+
+      if (buttonState != self._buttons[buttonName][-1]):
+        #falling edge
+        if (buttonState == 0):
+          falling_edge = 1
+        #rising edge  
+        else:
+          rising_edge = 1  
+         
+      self._buttons[buttonName].append(buttonState)
+
+      #Keep the buffer at xe_buffer_size
+      if len(self._buttons[buttonName]) > CONSTANTS['xe_buffer_size']:
+        self._buttons[buttonName].pop(0)
+
+      #return falling_edge
+      return rising_edge
+
 
     def open_program(self, program):
         self._events.open_program(program)
@@ -917,9 +963,8 @@ class Xevents(Plugin):
           self.set_gconf(gconf_key , value)
       else:
         self._defaults[gconf_key] =  value
-
-      self._parent.lc.prim_set_box( key, value)
-      self._parent.lc.update_label_value('box', value, label=key)
+        self._parent.lc.prim_set_box( key, value)
+        self._parent.lc.update_label_value('box', value, label=key)
         
     
     def set_program_name(self, value):
