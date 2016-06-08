@@ -51,6 +51,7 @@ class ARDroneNetworkProcess(multiprocessing.Process):
     def run(self):
 
         nav_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        nav_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         nav_socket.setblocking(0)
         nav_socket.bind(('', ARDRONE_NAVDATA_PORT))    
         try:

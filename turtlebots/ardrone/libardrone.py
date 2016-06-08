@@ -47,6 +47,8 @@ class ARDrone(object):
 
     def __init__(self):
         self.seq_nr = 1
+        # Para enviarle muchas veces el ultimo comando cada timer_t segundos.
+        self.ultimoFueDerechaIzquierdaArribaAbajo = False
         # TODO cambiar a 30 ms en vez de 200
         self.timer_t = 0.030
         self.com_watchdog_timer = threading.Timer(self.timer_t, self.commwdg)
@@ -70,8 +72,7 @@ class ARDrone(object):
         self.navdata['psi'] = 0
         self.navdata['altitude'] = 0
         self.time = 0
-        # Para enviarle muchas veces el ultimo comando cada timer_t segundos.
-        self.ultimoFueDerechaIzquierdaArribaAbajo = False
+        
         # 1 - derecha. 2 - izquierda. 3 - arriba. 4 - abajo.
         self.ultimoMovimiento = 0
 
