@@ -61,6 +61,7 @@ class Xevents(Plugin):
         self._last_event = 0
         self._program_name = ''
         self._defaults ={} # local default values for conf keys
+        self._last_button_state = 0
 
     def setPause(self):
         self.pause = True
@@ -848,6 +849,7 @@ class Xevents(Plugin):
       falling_edge = 0;
       rising_edge = 0
 
+      '''
       if not self._buttons.has_key(buttonName):
         self._buttons[buttonName] = []
         self._buttons[buttonName].append(0)
@@ -863,9 +865,20 @@ class Xevents(Plugin):
       self._buttons[buttonName].append(buttonState)
 
       #Keep the buffer at xe_buffer_size
-      if len(self._buttons[buttonName]) > CONSTANTS['xe_buffer_size']:
+      while len(self._buttons[buttonName]) > CONSTANTS['xe_buffer_size']:
         self._buttons[buttonName].pop(0)
 
+      '''
+      if (buttonState != self._last_button_state):
+        #falling edge
+        if (buttonState == 0):
+          falling_edge = 1
+        #rising edge  
+        else:
+          rising_edge = 1  
+           
+      self._last_button_state = buttonState
+      
       #return falling_edge
       return rising_edge
 
@@ -961,6 +974,13 @@ class Xevents(Plugin):
         else:
           # First run, setting gconf
           self.set_gconf(gconf_key , value)
+        try:
+          self._parent.lc.boxes[key] = value
+        except:
+          from traceback import print_stack
+          print_stack()
+          from pdb import set_trace
+          set_trace()
       else:
         self._defaults[gconf_key] =  value
         self._parent.lc.prim_set_box( key, value)
