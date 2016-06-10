@@ -974,13 +974,9 @@ class Xevents(Plugin):
         else:
           # First run, setting gconf
           self.set_gconf(gconf_key , value)
-        try:
-          self._parent.lc.boxes[key] = value
-        except:
-          from traceback import print_stack
-          print_stack()
-          from pdb import set_trace
-          set_trace()
+        
+        self._parent.lc.boxes[key] = value
+ 
       else:
         self._defaults[gconf_key] =  value
         self._parent.lc.prim_set_box( key, value)
