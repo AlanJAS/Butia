@@ -27,6 +27,8 @@ import gconf
 import socket
 import fcntl
 import struct
+
+from os import path as os_path
 from pybot import pybot_client
 
 from TurtleArt.tapalette import special_block_colors
@@ -1097,7 +1099,9 @@ class Butia(Plugin):
         if res == ERROR:
             try:
                 debug_output(_('Creating PyBot server'))
-                self.bobot = subprocess.Popen(['python', 'pybot_server.py'], cwd='./plugins/butia/pybot')
+                self.bobot = subprocess.Popen(
+				['python', 'pybot_server.py'],
+				cwd=os_path.join(os_path.dirname(__file__),'pybot'))
                 time.sleep(1)
                 self.butia.reconnect()
             except:
