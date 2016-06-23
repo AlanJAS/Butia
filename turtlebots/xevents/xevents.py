@@ -675,6 +675,17 @@ class Xevents(Plugin):
             Primitive(self.close_program, arg_descs=[ArgSlot(TYPE_STRING)])
         )
 
+        palette2.add_block('minimizeWindow',
+                  style='basic-style',
+                  label=_('minimizeWindow'),
+                  value_block=True,
+                  help_string=_('minimize the window'),
+                  prim_name='minimize_window')
+
+        self._parent.lc.def_prim(
+            'minimize_window', 0,
+            Primitive(self.minimize_window))
+
         palette2.add_block('saveValue',
                     style='basic-style-2arg',
                     label=[_('saveValue'), _('key'), _('value') ],
@@ -743,6 +754,7 @@ class Xevents(Plugin):
             'set_program_name', 1,
             Primitive(self.set_program_name, arg_descs=[ArgSlot(TYPE_STRING)])
         )
+
         
     ############################# Turtle calls ################################
 
@@ -992,4 +1004,7 @@ class Xevents(Plugin):
       #Replace whitespace with underscores
       value.replace(" ", "_")
       self._program_name = value
-    
+
+    def minimize_window(self):
+
+      self._parent.lc.tw.activity.win.iconify()
