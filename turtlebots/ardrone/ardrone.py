@@ -23,7 +23,6 @@ import time
 import threading
 import re
 import subprocess
-import gconf
 import ardroneAPI
 
 from TurtleArt.tapalette import special_block_colors

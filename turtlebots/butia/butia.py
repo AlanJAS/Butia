@@ -23,10 +23,14 @@ import time
 import threading
 import re
 import subprocess
-import gconf
 import socket
-import fcntl
 import struct
+
+try:
+    import gconf
+    HAS_GCONF = True
+except ImportError:
+    HAS_GCONF = False
 
 from os import path as os_path
 from pybot import pybot_client
@@ -1076,6 +1080,7 @@ class Butia(Plugin):
         #ifname = 'wlan', 'eth0'
         ip = -1
         try:
+            import fcntl
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             ip = socket.inet_ntoa(fcntl.ioctl(
                 s.fileno(),
