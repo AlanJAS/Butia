@@ -28,6 +28,7 @@ import sys
 import time
 import gconf
 import types
+import gtk.gdk
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
@@ -40,6 +41,7 @@ from TurtleArt.taprimitive import Primitive, ArgSlot, ConstantArg, or_
 from TurtleArt.tatype import TYPE_INT, TYPE_NUMBER, TYPE_COLOR, TYPE_STRING
 from events import Events
 from TurtleArt.taconstants import CONSTANTS, MACROS
+from TurtleArt.tabasics import Palettes
 
 
 import logging
@@ -756,6 +758,18 @@ class Xevents(Plugin):
         )
 
         
+        palette2.add_block('getColorAt',
+                           style='number-style-block',
+                           label=_("getColorAt"),
+                           default=[0, 0],
+                           help_string=_("Get rgb color from specific display position"),
+                           prim_name='get_color_at'
+                           )
+        self._parent.lc.def_prim(
+            'get_color_at', 2,
+            Primitive(self.get_color_at, arg_descs=[ArgSlot(TYPE_NUMBER), ArgSlot(TYPE_NUMBER)])
+        )
+        
     ############################# Turtle calls ################################
 
 
@@ -1005,6 +1019,15 @@ class Xevents(Plugin):
       value.replace(" ", "_")
       self._program_name = value
 
+
     def minimize_window(self):
 
       self._parent.lc.tw.activity.win.iconify()
+     
+    def get_color_at(self, cx, cy):
+      rw = gtk.gdk.get_default_root_window()
+      pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, 1, 1)
+      pixbuf = pixbuf.get_from_drawable(rw, rw.get_colormap(), int(cx), int(cy), 0, 0, 1, 1)
+      return '#%02x%02x%02x' % (tuple(pixbuf.pixel_array[0, 0]))
+    
+

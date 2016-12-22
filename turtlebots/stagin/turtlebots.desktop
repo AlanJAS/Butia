@@ -8,6 +8,6 @@ Exec=turtlebots
 Icon=/usr/share/icons/hicolor/scalable/apps/turtlebots.svg
 Type=Application
 Comment=TurtleBlocks with robot plugins
-Comment[es]=TurtleBlocks con plugins roboticos
+Comment[es]=TurtleBlocks con plugins robóticos
 Terminal=false
 Categories=Education;
