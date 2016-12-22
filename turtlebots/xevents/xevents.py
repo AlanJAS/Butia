@@ -837,10 +837,9 @@ class Xevents(Plugin):
         self._events.browser(url)
 
     def combine_keys(self, key1, key2):
-      return key1 + " " + key2 
+        return key1 + " " + key2 
 
     def _listMode(self, l):
-
         data = Counter(l)
         if len(data) > 0:
             data.most_common() # Returns all unique items and their counts
@@ -849,65 +848,37 @@ class Xevents(Plugin):
             return 0
 
     def debounce(self, buttonName, buttonState):
+       current_time = int(round(time.time()*1000))
+       self._last_event = current_time
 
-      current_time = int(round(time.time()*1000))
-      self._last_event = current_time
-
-      #deboucing - recolectar lecturas en cierto tiempo y evaluar la cantidad de 0 y 1's
-      #self.buttons -> key:[]
-      if not self._buttons.has_key(buttonName):
-        self._buttons[buttonName] = []
+       #deboucing - recolectar lecturas en cierto tiempo y evaluar la cantidad de 0 y 1's
+       #self.buttons -> key:[]
+       if not self._buttons.has_key(buttonName):
+           self._buttons[buttonName] = []
       
-      self._buttons[buttonName].append(buttonState)
+       self._buttons[buttonName].append(buttonState)
 
-      #Keep the buffer at xe_buffer_size
-      if len(self._buttons[buttonName]) > CONSTANTS['xe_buffer_size']:
-        self._buttons[buttonName].pop(0)
+       #Keep the buffer at xe_buffer_size
+       if len(self._buttons[buttonName]) > CONSTANTS['xe_buffer_size']:
+           self._buttons[buttonName].pop(0)
 
-      if self._listMode(self._buttons[buttonName]) == 1:    
-        return 1      
-      else:
-        return 0
-
+       if self._listMode(self._buttons[buttonName]) == 1:    
+           return 1      
+       else:
+           return 0
 
     def edge_detector(self, buttonName, buttonState):
-
-      falling_edge = 0;
-      rising_edge = 0
-
-      '''
-      if not self._buttons.has_key(buttonName):
-        self._buttons[buttonName] = []
-        self._buttons[buttonName].append(0)
-
-      if (buttonState != self._buttons[buttonName][-1]):
-        #falling edge
-        if (buttonState == 0):
-          falling_edge = 1
-        #rising edge  
-        else:
-          rising_edge = 1  
-         
-      self._buttons[buttonName].append(buttonState)
-
-      #Keep the buffer at xe_buffer_size
-      while len(self._buttons[buttonName]) > CONSTANTS['xe_buffer_size']:
-        self._buttons[buttonName].pop(0)
-
-      '''
-      if (buttonState != self._last_button_state):
-        #falling edge
-        if (buttonState == 0):
-          falling_edge = 1
-        #rising edge  
-        else:
-          rising_edge = 1  
-           
-      self._last_button_state = buttonState
-      
-      #return falling_edge
-      return rising_edge
-
+       falling_edge = 0;
+       rising_edge = 0
+       if (buttonState != self._last_button_state):
+           #falling edge
+           if (buttonState == 0):
+               falling_edge = 1
+           #rising edge  
+           else:
+               rising_edge = 1  
+       self._last_button_state = buttonState
+       return rising_edge
 
     def open_program(self, program):
         self._events.open_program(program)
@@ -916,116 +887,99 @@ class Xevents(Plugin):
         self._events.close_program(program)
 
     def init_gconf(self):
-      
-      try:
-        self.gconf_client = gconf.client_get_default()
-      except Exception, err:
-        debug_output(_('ERROR: cannot init GCONF client: %s') % err)
-        self.gconf_client = None
-      
+        try:
+            self.gconf_client = gconf.client_get_default()
+        except Exception, err:
+            debug_output(_('ERROR: cannot init GCONF client: %s') % err)
+            self.gconf_client = None
 
     def get_gconf(self, key):
-
-      casts = {gconf.VALUE_BOOL:   gconf.Value.get_bool,
+        casts = {gconf.VALUE_BOOL:   gconf.Value.get_bool,
                gconf.VALUE_INT:    gconf.Value.get_int,
                gconf.VALUE_FLOAT:  gconf.Value.get_float,
                gconf.VALUE_STRING: gconf.Value.get_string}
- 
-      try:
-        #res = float(self.gconf_client.get_string(key))
+        res = None
+        try:
+            val = self.gconf_client.get(key)
+            if val is not None:
+                res = casts[val.type](val)
+        except:
+            pass
 
-        val = self.gconf_client.get(key)
-        if val == None:
-          ret = None
-        res = casts[val.type](val)
-
-      except:
-        return None
-
-      return res
-
+        return res
 
     def set_gconf(self, key, value):
 
-      casts = {types.BooleanType: gconf.Client.set_bool,
+        casts = {types.BooleanType: gconf.Client.set_bool,
               types.IntType:     gconf.Client.set_int,
               types.FloatType:   gconf.Client.set_float,
               types.StringType:  gconf.Client.set_string}
       
-      try:
-        casts[type(value)](self.gconf_client, key, value)
-        #self.gconf_client.set_float(key, value)
-      except:
-        pass
-
+        try:
+            casts[type(value)](self.gconf_client, key, value)
+            #self.gconf_client.set_float(key, value)
+        except:
+            pass
 
     def save_value(self, key, value):
+        #if value does not exist, create it
+        gconf_key = GCONF_XEVENTS_PATH + "_" + key
+        if (hasattr(self,"_program_name")):
+            gconf_key = GCONF_XEVENTS_PATH + "_" + self._program_name + "_" + key
 
-      #if value does not exist, create it
-      gconf_key = GCONF_XEVENTS_PATH + "_" + key
-      if (hasattr(self,"_program_name")):
-        gconf_key = GCONF_XEVENTS_PATH + "_" + self._program_name + "_" + key
-
-      self.set_gconf(gconf_key, value)
-      self._defaults[gconf_key] =  value
-      self._parent.lc.prim_set_box( key, value)
-
-
-    def get_value(self, key):
-
-      #if value does not exist, create it
-      gconf_key = GCONF_XEVENTS_PATH + "_" + key
-      if (hasattr(self,"_program_name")):
-        gconf_key = GCONF_XEVENTS_PATH + "_" + self._program_name + "_" + key
-
-      return self._defaults.get(gconf_key,self.get_gconf(gconf_key))
-
-
-    def default_value(self, key, value):
-
-      #if value does not exist, create it
-      gconf_key = GCONF_XEVENTS_PATH + "_" + key
-
-      if (hasattr(self,"_program_name")):
-        gconf_key = GCONF_XEVENTS_PATH + "_" + self._program_name + "_" + key
-      try:
-        running_from_py =(self._parent.parent.__class__.__name__=='DummyTurtleMain')
-      except:
-        running_from_py = True
-
-      if (running_from_py):
-        if (self.get_gconf(gconf_key ) is not None ) :
-          # There is already a value, using it instead of default
-          value = self.get_gconf(gconf_key)
-        else:
-          # First run, setting gconf
-          self.set_gconf(gconf_key , value)
-        
-        self._parent.lc.boxes[key] = value
- 
-      else:
+        self.set_gconf(gconf_key, value)
         self._defaults[gconf_key] =  value
         self._parent.lc.prim_set_box( key, value)
-        self._parent.lc.update_label_value('box', value, label=key)
-        
-    
-    def set_program_name(self, value):
 
-      #Convert name to lowercase
-      value.lower()
-      #Remove whitespace characters at start and end
-      value.strip()
-      #Replace whitespace with underscores
-      value.replace(" ", "_")
-      self._program_name = value
+    def get_value(self, key):
+        #if value does not exist, create it
+        gconf_key = GCONF_XEVENTS_PATH + "_" + key
+        if (hasattr(self,"_program_name")):
+            gconf_key = GCONF_XEVENTS_PATH + "_" + self._program_name + "_" + key
+
+        return self._defaults.get(gconf_key,self.get_gconf(gconf_key))
+
+    def default_value(self, key, value):
+        #if value does not exist, create it
+        gconf_key = GCONF_XEVENTS_PATH + "_" + key
+
+        if (hasattr(self,"_program_name")):
+            gconf_key = GCONF_XEVENTS_PATH + "_" + self._program_name + "_" + key
+        try:
+            running_from_py =(self._parent.parent.__class__.__name__=='DummyTurtleMain')
+        except:
+            running_from_py = True
+
+        if running_from_py:
+            if (self.get_gconf(gconf_key ) is not None ) :
+                # There is already a value, using it instead of default
+                value = self.get_gconf(gconf_key)
+            else:
+                # First run, setting gconf
+                self.set_gconf(gconf_key , value)
+        
+            self._parent.lc.boxes[key] = value
+ 
+        else:
+            self._defaults[gconf_key] =  value
+            self._parent.lc.prim_set_box( key, value)
+            self._parent.lc.update_label_value('box', value, label=key)
+
+    def set_program_name(self, value):
+        #Convert name to lowercase
+        value.lower()
+        #Remove whitespace characters at start and end
+        value.strip()
+        #Replace whitespace with underscores
+        value.replace(" ", "_")
+        self._program_name = value
 
     def minimize_window(self):
-
-      self._parent.lc.tw.activity.win.iconify()
+        self._parent.lc.tw.activity.win.iconify()
      
     def get_color_at(self, cx, cy):
-      rw = gtk.gdk.get_default_root_window()
-      pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, 1, 1)
-      pixbuf = pixbuf.get_from_drawable(rw, rw.get_colormap(), int(cx), int(cy), 0, 0, 1, 1)
-      return '#%02x%02x%02x' % (tuple(pixbuf.pixel_array[0, 0]))
+        rw = gtk.gdk.get_default_root_window()
+        pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, 1, 1)
+        pixbuf = pixbuf.get_from_drawable(rw, rw.get_colormap(), int(cx), int(cy), 0, 0, 1, 1)
+        return '#%02x%02x%02x' % (tuple(pixbuf.pixel_array[0, 0]))
 
