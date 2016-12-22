@@ -51,6 +51,12 @@ class USB4Butia(ButiaFunctions):
         if self._debug_flag:
             print message, err
 
+    def closeService(self):
+        """
+        Close bobot service
+        """
+        return 0
+
     def getButiaCount(self):
         """
         Gets the number of boards detected
