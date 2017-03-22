@@ -397,6 +397,8 @@ class Xevents(Plugin):
                           help_string=_('set width and height of line over mouse'))
 
 
+        ############################ Palette Extra #############################
+
         palette2.add_block('simulateKey',
                           style='basic-style-1arg',
                           label=_('simulateKey'),
@@ -634,57 +636,6 @@ class Xevents(Plugin):
           Primitive(self.edge_detector, arg_descs=[ArgSlot(TYPE_STRING),
                                               ArgSlot(TYPE_NUMBER)]))
 
-
-        ############################# Palette Prog #############################
-
-        palette3.add_block('openBrowser',
-                          style='basic-style-1arg',
-                          label=_('openBrowser'),
-                          default=[_("http://www.example.com")],
-                          help_string=_('Simulates opening a web browser'),
-                          prim_name='browser')
-
-        self._parent.lc.def_prim(
-            'browser', 1,
-            Primitive(self.browser, arg_descs=[ArgSlot(TYPE_STRING)]))
-
-        palette3.add_block('openProgram',
-                           style='basic-style-1arg',
-                           label=_("openProgram"),
-                           default=[_("name")],
-                           help_string=_('Opens a program'),
-                           prim_name='open_program'
-                           )
-
-        self._parent.lc.def_prim(
-            'open_program', 1,
-            Primitive(self.open_program, arg_descs=[ArgSlot(TYPE_STRING)])
-        )
-
-        palette3.add_block('closeProgram',
-                           style='basic-style-1arg',
-                           label=_("closeProgram"),
-                           default=[_("name")],
-                           help_string=_('close a program'),
-                           prim_name='close_program'
-                           )
-
-        self._parent.lc.def_prim(
-            'close_program', 1,
-            Primitive(self.close_program, arg_descs=[ArgSlot(TYPE_STRING)])
-        )
-
-        palette3.add_block('minimizeWindow',
-                  style='basic-style',
-                  label=_('minimizeWindow'),
-                  value_block=True,
-                  help_string=_('minimize the window'),
-                  prim_name='minimize_window')
-
-        self._parent.lc.def_prim(
-            'minimize_window', 0,
-            Primitive(self.minimize_window))
-
         palette2.add_block('saveValue',
                     hidden=True,
                     style='basic-style-2arg',
@@ -740,6 +691,59 @@ class Xevents(Plugin):
                               [ArgSlot(TYPE_STRING),ArgSlot(TYPE_COLOR)],
                               [ArgSlot(TYPE_STRING),ArgSlot(TYPE_NUMBER)],
                               [ArgSlot(TYPE_STRING),ArgSlot(TYPE_STRING)]) ))
+
+
+        ############################# Palette Prog #############################
+
+        palette3.add_block('openBrowser',
+                          style='basic-style-1arg',
+                          label=_('openBrowser'),
+                          default=[_("http://www.example.com")],
+                          help_string=_('Simulates opening a web browser'),
+                          prim_name='browser')
+
+        self._parent.lc.def_prim(
+            'browser', 1,
+            Primitive(self.browser, arg_descs=[ArgSlot(TYPE_STRING)]))
+
+        palette3.add_block('openProgram',
+                           style='basic-style-1arg',
+                           label=_("openProgram"),
+                           default=[_("name")],
+                           help_string=_('Opens a program'),
+                           prim_name='open_program'
+                           )
+
+        self._parent.lc.def_prim(
+            'open_program', 1,
+            Primitive(self.open_program, arg_descs=[ArgSlot(TYPE_STRING)])
+        )
+
+        palette3.add_block('closeProgram',
+                           style='basic-style-1arg',
+                           label=_("closeProgram"),
+                           default=[_("name")],
+                           help_string=_('close a program'),
+                           prim_name='close_program'
+                           )
+
+        self._parent.lc.def_prim(
+            'close_program', 1,
+            Primitive(self.close_program, arg_descs=[ArgSlot(TYPE_STRING)])
+        )
+
+        palette3.add_block('minimizeWindow',
+                  style='basic-style',
+                  label=_('minimizeWindow'),
+                  value_block=True,
+                  help_string=_('minimize the window'),
+                  prim_name='minimize_window')
+
+        self._parent.lc.def_prim(
+            'minimize_window', 0,
+            Primitive(self.minimize_window))
+
+
         
         palette3.add_block('setProgramName',
                            style='basic-style-1arg',
@@ -755,7 +759,7 @@ class Xevents(Plugin):
         )
 
         
-        palette2.add_block('getColorAt',
+        palette3.add_block('getColorAt',
                            hidden=True,
                            style='number-style-block',
                            label=_("getColorAt"),
@@ -764,7 +768,7 @@ class Xevents(Plugin):
                            prim_name='get_color_at'
                            )
 
-        palette2.add_block('getColorAtMacro',
+        palette3.add_block('getColorAtMacro',
                           style='basic-style-extended-vertical',
                           label=_('getColorAt'),
                           help_string=_('Get rgb color from specific display position'))
