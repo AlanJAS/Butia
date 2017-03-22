@@ -105,11 +105,29 @@ class Xevents(Plugin):
 
 
         global MACROS
-        MACROS['setLineWidthAndHeightmacro'] = [[0, 'setLineWidthAndHeight', 0, 0, [None, 1, 2, None]],
+        MACROS['setLineWidthAndHeightMacro'] = [[0, 'setLineWidthAndHeight', 0, 0, [None, 1, 2, None]],
                                                 [1, ['number', 0], 0, 0, [0, None]],
                                                 [2, ['number', 0], 0, 0, [0, None]]
                                                ]
-        
+        MACROS['combineKeysMacro'] = [[0, 'combineKeys', 0, 0, [None, None, None, None]]]
+        MACROS['debounceMacro'] = [[0, 'debounce', 0, 0, [None, 1, None, None]],
+                                    [1, ['string', _('name')], 0, 0, [0, None]]
+                                  ]
+        MACROS['edgeDetectorMacro'] = [[0, 'edgeDetector', 0, 0, [None, 1, None, None]],
+                                    [1, ['string', _('name')], 0, 0, [0, None]]
+                                  ]
+        MACROS['saveValueMacro'] = [[0, 'saveValue', 0, 0, [None, 1, None, None]],
+                                    [1, ['string', _('key')], 0, 0, [0, None]]
+                                  ]
+        MACROS['defaultValueMacro'] = [[0, 'defaultValue', 0, 0, [None, 1, None, None]],
+                                    [1, ['string', _('key')], 0, 0, [0, None]]
+                                  ]
+        MACROS['getColorAtMacro'] = [[0, 'getColorAt', 0, 0, [None, 1, 2, None]],
+                                    [1, ['number', 0], 0, 0, [0, None]],
+                                    [2, ['number', 0], 0, 0, [0, None]]
+                                    ]
+  
+        # Palettes
 
         palette = make_palette('xlib-bots',
                                colors=["#FF6060", "#A06060"],
@@ -373,7 +391,7 @@ class Xevents(Plugin):
                       arg_descs=[ArgSlot(TYPE_NUMBER),
                                  ArgSlot(TYPE_NUMBER)]))
 
-        palette.add_block('setLineWidthAndHeightmacro',
+        palette.add_block('setLineWidthAndHeightMacro',
                           style='basic-style-extended-vertical',
                           label=_('setLineWidthAndHeight'),
                           help_string=_('set width and height of line over mouse'))
@@ -560,12 +578,17 @@ class Xevents(Plugin):
             Primitive(CONSTANTS.get, TYPE_STRING, [ConstantArg('xe_f5')]))
 
 
-
         palette2.add_block('combineKeys',
+                        hidden=True,
                         style='number-style-block',
                         label=[_('combine'), _('key1'), _('key2') ],
                         help_string=_('Combines two keys. e.g : ctrl + c'),
                         prim_name='combine_keys')
+
+        palette2.add_block('combineKeysMacro',
+                          style='basic-style-extended-vertical',
+                          label=_('combine'),
+                          help_string=_('Combines two keys. e.g : ctrl + c'))
         
 
         self._parent.lc.def_prim(
@@ -574,11 +597,17 @@ class Xevents(Plugin):
                                               ArgSlot(TYPE_STRING)]))
 
         palette2.add_block('debounce',
+                        hidden=True,
                         style='number-style-block',
                         label=[_('debounce'), _('name'), _('button') ],
-                        default=["name"],
+                        default=[_('name')],
                         help_string=_('Debouncing - The name must be unique'),
                         prim_name='debounce')
+
+        palette2.add_block('debounceMacro',
+                          style='basic-style-extended-vertical',
+                          label=_('debounce'),
+                          help_string=_('Debouncing - The name must be unique'))
         
 
         self._parent.lc.def_prim(
@@ -587,11 +616,17 @@ class Xevents(Plugin):
                                               ArgSlot(TYPE_NUMBER)]))
 
         palette2.add_block('edgeDetector',
+                        hidden=True,
                         style='number-style-block',
                         label=[_('edge detector'), _('name'), _('button') ],
-                        default=["name"],
+                        default=[_('name')],
                         help_string=_('Edge Detector - The name must be unique'),
                         prim_name='edge_detector')
+
+        palette2.add_block('edgeDetectorMacro',
+                          style='basic-style-extended-vertical',
+                          label=_('edge detector'),
+                          help_string=_('Edge Detector - The name must be unique'))
         
 
         self._parent.lc.def_prim(
@@ -651,11 +686,17 @@ class Xevents(Plugin):
             Primitive(self.minimize_window))
 
         palette2.add_block('saveValue',
+                    hidden=True,
                     style='basic-style-2arg',
                     label=[_('saveValue'), _('key'), _('value') ],
-                    default=["key"],
+                    default=[_('key')],
                     help_string=_('save value - The key must be unique'),
                     prim_name='save_value')
+
+        palette2.add_block('saveValueMacro',
+                          style='basic-style-extended-vertical',
+                          label=_('saveValue'),
+                          help_string=_('save value - The key must be unique'))
     
 
         self._parent.lc.def_prim(
@@ -679,12 +720,17 @@ class Xevents(Plugin):
 
 
         palette2.add_block('defaultValue',
+                    hidden=True,
                     style='basic-style-2arg',
                     label=[_('defaultValue'), _('key'), _('value') ],
-                    default=["key"],
+                    default=[_('key')],
                     help_string=_('default value - The key must be unique'),
                     prim_name='default_value')
     
+        palette2.add_block('defaultValueMacro',
+                          style='basic-style-extended-vertical',
+                          label=_('defaultValue'),
+                          help_string=_('default value - The key must be unique'))
 
         self._parent.lc.def_prim(
           'default_value', 2,
@@ -710,12 +756,19 @@ class Xevents(Plugin):
 
         
         palette2.add_block('getColorAt',
+                           hidden=True,
                            style='number-style-block',
                            label=_("getColorAt"),
                            default=[0, 0],
                            help_string=_("Get rgb color from specific display position"),
                            prim_name='get_color_at'
                            )
+
+        palette2.add_block('getColorAtMacro',
+                          style='basic-style-extended-vertical',
+                          label=_('getColorAt'),
+                          help_string=_('Get rgb color from specific display position'))
+
         self._parent.lc.def_prim(
             'get_color_at', 2,
             Primitive(self.get_color_at, arg_descs=[ArgSlot(TYPE_NUMBER), ArgSlot(TYPE_NUMBER)])
