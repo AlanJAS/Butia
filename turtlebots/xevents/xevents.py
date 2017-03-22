@@ -105,13 +105,6 @@ class Xevents(Plugin):
 
 
         global MACROS
-        '''MACROS['setLineColorRGBmacro'] = [[0, 'setLineColorRGB', 0, 0, [None, 1, 2, 3, None]],
-                                          [1, ['number', 0], 0, 0, [0, None]],
-                                          [2, ['number', 0], 0, 0, [0, None]],
-                                          [3, ['number', 0], 0, 0, [0, None]]
-                                         ]
-        '''
-
         MACROS['setLineWidthAndHeightmacro'] = [[0, 'setLineWidthAndHeight', 0, 0, [None, 1, 2, None]],
                                                 [1, ['number', 0], 0, 0, [0, None]],
                                                 [2, ['number', 0], 0, 0, [0, None]]
@@ -121,10 +114,14 @@ class Xevents(Plugin):
         palette = make_palette('xlib-bots',
                                colors=["#FF6060", "#A06060"],
                                help_string=_('Palette of X11 event blocks'))
-        # Extra palette
+        
         palette2 = make_palette('xlib-bots-extra', 
                                 colors=["#FF6060", "#A06060"], 
                                 help_string=_('Palette of X11 extra event blocks'))
+
+        palette3 = make_palette('xlib-bots-prog', 
+                                colors=["#FF6060", "#A06060"], 
+                                help_string=_('Palette of X11 extra program blocks'))
 
 
         palette.add_block('setX11mouse',
@@ -336,31 +333,6 @@ class Xevents(Plugin):
             Primitive(self.hide_line))
 
 
-        '''
-        palette.add_block('setLineColorRGB',
-                          hidden=True,
-                          style='basic-style-3arg',
-                          label=_('setLineColorRGB'),
-                          value_block=True,
-                          default=[0, 0, 0],
-                          help_string=_('set line color from rgb value'),
-                          prim_name='set_line_color_rgb')
-
-        self._parent.lc.def_prim(
-            'set_line_color_rgb', 3,
-            Primitive(self.set_line_color_rgb,
-                      arg_descs=[ArgSlot(TYPE_INT),
-                                 ArgSlot(TYPE_INT),
-                                 ArgSlot(TYPE_INT)]))
-
-
-        palette.add_block('setLineColorRGBmacro',
-                          style='basic-style-extended-vertical',
-                          label=_('setLineColorRGB'),
-                          help_string=_('set line color from rgb value'))
-
-        '''
-
         palette.add_block('setLineColor',
                           style='basic-style-1arg',
                           label=_('setLineColor'),
@@ -513,19 +485,6 @@ class Xevents(Plugin):
             'alt_key', 0,
             Primitive(CONSTANTS.get, TYPE_STRING, [ConstantArg('xe_alt')]))
 
-        '''
-        palette2.add_block('AltGrKey',
-                          style='box-style',
-                          label=_('altGrKey'),
-                          value_block=True,
-                          help_string=_('alt gr key'),
-                          prim_name='altgr_key')
-
-        
-        self._parent.lc.def_prim(
-            'altgr_key', 0,
-            Primitive(CONSTANTS.get, TYPE_STRING, [ConstantArg('xe_alt_gr')]))
-        '''
 
         palette2.add_block('tabKey',
                           style='box-style',
@@ -640,7 +599,10 @@ class Xevents(Plugin):
           Primitive(self.edge_detector, arg_descs=[ArgSlot(TYPE_STRING),
                                               ArgSlot(TYPE_NUMBER)]))
 
-        palette2.add_block('openBrowser',
+
+        ############################# Palette Prog #############################
+
+        palette3.add_block('openBrowser',
                           style='basic-style-1arg',
                           label=_('openBrowser'),
                           default=[_("http://www.example.com")],
@@ -651,7 +613,7 @@ class Xevents(Plugin):
             'browser', 1,
             Primitive(self.browser, arg_descs=[ArgSlot(TYPE_STRING)]))
 
-        palette2.add_block('openProgram',
+        palette3.add_block('openProgram',
                            style='basic-style-1arg',
                            label=_("openProgram"),
                            default=[_("name")],
@@ -664,7 +626,7 @@ class Xevents(Plugin):
             Primitive(self.open_program, arg_descs=[ArgSlot(TYPE_STRING)])
         )
 
-        palette2.add_block('closeProgram',
+        palette3.add_block('closeProgram',
                            style='basic-style-1arg',
                            label=_("closeProgram"),
                            default=[_("name")],
@@ -677,7 +639,7 @@ class Xevents(Plugin):
             Primitive(self.close_program, arg_descs=[ArgSlot(TYPE_STRING)])
         )
 
-        palette2.add_block('minimizeWindow',
+        palette3.add_block('minimizeWindow',
                   style='basic-style',
                   label=_('minimizeWindow'),
                   value_block=True,
@@ -732,19 +694,8 @@ class Xevents(Plugin):
                               [ArgSlot(TYPE_STRING),ArgSlot(TYPE_COLOR)],
                               [ArgSlot(TYPE_STRING),ArgSlot(TYPE_NUMBER)],
                               [ArgSlot(TYPE_STRING),ArgSlot(TYPE_STRING)]) ))
-          # or_(Primitive(self.default_value,
-          #                 arg_descs=[ArgSlot(TYPE_STRING),
-          #                            ArgSlot(TYPE_COLOR)]),
-          #       # ... or save a number
-          #       Primitive(self.default_value,
-          #                 arg_descs=[ArgSlot(TYPE_STRING),
-          #                            ArgSlot(TYPE_NUMBER)]),
-          #       # ... or save a string
-          #       Primitive(self.default_value,
-          #                 arg_descs=[ArgSlot(TYPE_STRING),
-          #                            ArgSlot(TYPE_STRING)]) ))
         
-        palette2.add_block('setProgramName',
+        palette3.add_block('setProgramName',
                            style='basic-style-1arg',
                            label=_("setProgramName"),
                            default=[_("my program")],
