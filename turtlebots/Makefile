@@ -199,7 +199,6 @@ apply_hard_plugins: apply_localization sourceGIT pattern_detection_compile
 	cp pyusb/ACKNOWLEDGEMENTS   $(BUILDDIR)/plugins/butia/pybot/usb
 	cp pyusb/LICENSE            $(BUILDDIR)/plugins/butia/pybot/usb
 	cp pyusb/README.rst         $(BUILDDIR)/plugins/butia/pybot/usb
-	cp pyusb/ReleaseNotes.rst   $(BUILDDIR)/plugins/butia/pybot/usb
 	# update pyusb for others plugins
 	cp -rLf $(BUILDDIR)/plugins/butia/pybot/usb $(BUILDDIR)/plugins/nxt_plugin/
 	cp -rLf $(BUILDDIR)/plugins/butia/pybot/usb $(BUILDDIR)/plugins/wedo_plugin/
