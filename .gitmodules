@@ -20,3 +20,6 @@
 [submodule "turtlebots/rodi"]
 	path = turtlebots/rodi
 	url = git://github.com/rodibot/rodi-plugin-turtlebots.git
+[submodule "turtlebots/mark"]
+	path = turtlebots/mark
+	url = git://github.com/AlanJAS/mark.git

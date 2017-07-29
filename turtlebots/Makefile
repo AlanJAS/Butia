@@ -30,6 +30,7 @@ WEDO_VERSION = ad432528d5883a39e6c9dcfb5e5dc9a353fa5761
 ARDUINO_VERSION = ea6ae5b0fb22ab6778fdfc457a51dde8f914e977
 PYUSB_VERSION = 1f66ccd5d252e969b1de9bf91bf24e5c64294b8d
 RODI_VERSION = 34e4d86e0cc55a67c6667d2aee67c247d2f6184c
+MARK_VERSION = 2ea080c9c983259eef188232946a17eb4964b1cd
 
 SHELL = /bin/sh
 # check work in "sh" instad of bash, make it more portable!!!
@@ -107,6 +108,9 @@ pyusb/.git:
 rodi/.git:
 	$(MAKE) first
 
+maker/.git:
+	$(MAKE) first
+
 ######################## Checkout a version of submodule #######################
 
 SUBMODULE = mainline
@@ -141,7 +145,10 @@ pyusbGIT: pyusb/.git
 rodiGIT: rodi/.git
 	$(MAKE) SUBMODULE=rodi SUBMODULEVER=$(RODI_VERSION) checkoutsm
 
-sourceGIT: walterGIT extrasGIT wedoGIT nxtGIT arduinoGIT pyusbGIT rodiGIT
+makerGIT: rodi/.git
+	$(MAKE) SUBMODULE=rodi SUBMODULEVER=$(RODI_VERSION) checkoutsm
+
+sourceGIT: walterGIT extrasGIT wedoGIT nxtGIT arduinoGIT pyusbGIT rodiGIT makerGIT
 	echo sourceGIT
 
 ################################# Construction #################################
@@ -179,6 +186,7 @@ apply_hard_plugins: apply_localization sourceGIT pattern_detection_compile
 	cp -rLf colorview             $(BUILDDIR)/plugins/
 	cp -rLf nxt_plugin            $(BUILDDIR)/plugins/
 	cp -rLf rodi                  $(BUILDDIR)/plugins/
+	cp -rLf maker                 $(BUILDDIR)/plugins/
 	cp -rLf WeDoMore/wedo_plugin  $(BUILDDIR)/plugins/
 	cp -rLf arduino               $(BUILDDIR)/plugins/
 	cp -rLf pattern_detection     $(BUILDDIR)/plugins/
@@ -237,6 +245,7 @@ apply_sym_plugins: sourceGIT apply_localization pattern_detection_compile
 	ln -s `pwd`/arduino                $(BUILDDIR)/plugins/arduino
 	ln -s `pwd`/pattern_detection      $(BUILDDIR)/plugins/pattern_detection
 	ln -s `pwd`/rodi                   $(BUILDDIR)/plugins/rodi
+	ln -s `pwd`/mark                   $(BUILDDIR)/plugins/mark
 	ln -s `pwd`/xevents                $(BUILDDIR)/plugins/xevents
 	# add pyusb for wedo
 	ln -s `pwd`/pyusb/usb              $(BUILDDIR)/plugins/wedo_plugin/usb
@@ -435,7 +444,7 @@ clean-plugins:
 # targets that not represent generated files
 .PHONY: all help \
  clean clean-tmp clean-builddir clean-xo clean-plugins \
- first walterGIT extrasGIT wedoGIT nxtGIT arduinoGIT rodiGIT pyusbGIT \
+ first walterGIT extrasGIT wedoGIT nxtGIT arduinoGIT rodiGIT pyusbGIT markGIT \
  xo mktmpfolder apply_hard_plugins apply_sym_plugins \
  install install-strip install-dependencies \
  uninstall uninstall-strip \
