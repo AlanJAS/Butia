@@ -30,7 +30,7 @@ WEDO_VERSION = ad432528d5883a39e6c9dcfb5e5dc9a353fa5761
 ARDUINO_VERSION = ea6ae5b0fb22ab6778fdfc457a51dde8f914e977
 PYUSB_VERSION = 1f66ccd5d252e969b1de9bf91bf24e5c64294b8d
 RODI_VERSION = 34e4d86e0cc55a67c6667d2aee67c247d2f6184c
-MARK_VERSION = 2ea080c9c983259eef188232946a17eb4964b1cd
+MARK_VERSION = d92c29c42db8e9c228da394e8c0fb4eff64c8159
 
 SHELL = /bin/sh
 # check work in "sh" instad of bash, make it more portable!!!
@@ -186,7 +186,7 @@ apply_hard_plugins: apply_localization sourceGIT pattern_detection_compile
 	cp -rLf colorview             $(BUILDDIR)/plugins/
 	cp -rLf nxt_plugin            $(BUILDDIR)/plugins/
 	cp -rLf rodi                  $(BUILDDIR)/plugins/
-	cp -rLf maker                 $(BUILDDIR)/plugins/
+	cp -rLf mark                  $(BUILDDIR)/plugins/
 	cp -rLf WeDoMore/wedo_plugin  $(BUILDDIR)/plugins/
 	cp -rLf arduino               $(BUILDDIR)/plugins/
 	cp -rLf pattern_detection     $(BUILDDIR)/plugins/
