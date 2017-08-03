@@ -30,7 +30,7 @@ WEDO_VERSION = ad432528d5883a39e6c9dcfb5e5dc9a353fa5761
 ARDUINO_VERSION = ea6ae5b0fb22ab6778fdfc457a51dde8f914e977
 PYUSB_VERSION = 1f66ccd5d252e969b1de9bf91bf24e5c64294b8d
 RODI_VERSION = 34e4d86e0cc55a67c6667d2aee67c247d2f6184c
-MARK_VERSION = d92c29c42db8e9c228da394e8c0fb4eff64c8159
+MARK_VERSION = 9f831d8da7f29aad91ee8960608a85c5393614a9
 
 SHELL = /bin/sh
 # check work in "sh" instad of bash, make it more portable!!!
@@ -108,7 +108,7 @@ pyusb/.git:
 rodi/.git:
 	$(MAKE) first
 
-maker/.git:
+mark/.git:
 	$(MAKE) first
 
 ######################## Checkout a version of submodule #######################
@@ -145,10 +145,10 @@ pyusbGIT: pyusb/.git
 rodiGIT: rodi/.git
 	$(MAKE) SUBMODULE=rodi SUBMODULEVER=$(RODI_VERSION) checkoutsm
 
-makerGIT: rodi/.git
-	$(MAKE) SUBMODULE=rodi SUBMODULEVER=$(RODI_VERSION) checkoutsm
+markGIT: mark/.git
+	$(MAKE) SUBMODULE=mark SUBMODULEVER=$(MARK_VERSION) checkoutsm
 
-sourceGIT: walterGIT extrasGIT wedoGIT nxtGIT arduinoGIT pyusbGIT rodiGIT makerGIT
+sourceGIT: walterGIT extrasGIT wedoGIT nxtGIT arduinoGIT pyusbGIT rodiGIT markGIT
 	echo sourceGIT
 
 ################################# Construction #################################
