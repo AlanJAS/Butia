@@ -1,4 +1,4 @@
 [Plugin]
 name=nxt_plugin
 palette=nxt-motors, nxt-sensors
-version=31
+version=32

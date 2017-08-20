@@ -343,6 +343,12 @@ plugin-rodi: apply_hard_plugins
 	rm $(BUILDDIR)/plugins/plugin.info
 	mv $(BUILDDIR)/plugins/rodi_plugin.tar.gz .
 
+plugin-mark: apply_hard_plugins
+	cp stagin/plugins/mark/plugin.info $(BUILDDIR)/plugins
+	cd $(BUILDDIR)/plugins && tar -czvf mark_plugin.tar.gz mark/* plugin.info
+	rm $(BUILDDIR)/plugins/plugin.info
+	mv $(BUILDDIR)/plugins/mark_plugin.tar.gz .
+
 plugin-xevents: apply_hard_plugins
 	cp stagin/plugins/xevents/plugin.info $(BUILDDIR)/plugins
 	cd $(BUILDDIR)/plugins && tar -czvf xevents_plugin.tar.gz xevents/* plugin.info
@@ -350,7 +356,7 @@ plugin-xevents: apply_hard_plugins
 	mv $(BUILDDIR)/plugins/xevents_plugin.tar.gz .
 
 plugins: plugin-butia plugin-followme plugin-colorview plugin-nxt plugin-wedo \
-         plugin-marcas plugin-arduino plugin-rodi plugin-xevents plugin-ax12
+         plugin-marcas plugin-arduino plugin-rodi plugin-xevents plugin-ax12 plugin-mark
 
 plugin-all: plugins
 
@@ -447,7 +453,7 @@ clean-plugins:
  first walterGIT extrasGIT wedoGIT nxtGIT arduinoGIT rodiGIT pyusbGIT markGIT \
  xo mktmpfolder apply_hard_plugins apply_sym_plugins \
  install install-strip install-dependencies \
- uninstall uninstall-strip \
+ uninstall uninstall-strip plugin-mark\
  plugin-butia plugin-followme plugin-nxt plugin-wedo plugins plugin-all \
  dev pattern_detection_compile plugin-arduino plugin-rodi plugin-fischer \
  plugin-colorview plugin-xevents plugin-ax12 plugin-atyarandu plugin-ardrone
