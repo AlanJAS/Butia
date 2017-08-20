@@ -10,9 +10,9 @@ Homepage: http://www.fing.edu.uy/inco/proyectos/butia
 
 Package: turtlebots
 Architecture: any
-Depends: python-pygame (>= 1.9.1), python-gconf, python-gtk2, ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
+Depends: python-gconf, python-gtk2, ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
 Conflicts: turtleart (<= 98-1)
-Recommends: python-pycurl, libgstreamer0.10-0, python-bluez
+Recommends: python-pycurl, libgstreamer0.10-0, python-bluez, python-pygame (>= 1.9.1)
 Replaces: sugar-activity-turtlebots, sugar-default-activities
 Description: TurtleBlocks with robotic plugins
  TurtleBots is a modified version of TurtleBlocks, it includes several plugins 
