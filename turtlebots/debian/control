@@ -9,7 +9,7 @@ Homepage: http://www.fing.edu.uy/inco/proyectos/butia
 #Vcs-Browser: http://git.debian.org/?p=collab-maint/turtlebots.git;a=summary
 
 Package: turtlebots
-Architecture: any
+Architecture: all
 Depends: python-gconf, python-gtk2, ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
 Conflicts: turtleart (<= 98-1)
 Recommends: python-pycurl, python-bluez, python-pygame (>= 1.9.1)
