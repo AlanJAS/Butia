@@ -175,7 +175,7 @@ apply_localization: sourceGIT mktmpfolder
 	# fix localization (compile .po)
 	(cd $(BUILDDIR) && python setup.py build)
 
-apply_hard_plugins: apply_localization sourceGIT pattern_detection_compile
+apply_hard_plugins: apply_localization sourceGIT
 	cp -rLf ardrone               $(BUILDDIR)/plugins/
 	cp -rLf atyarandu             $(BUILDDIR)/plugins/
 	cp -rLf ax12                  $(BUILDDIR)/plugins/
@@ -189,7 +189,6 @@ apply_hard_plugins: apply_localization sourceGIT pattern_detection_compile
 	cp -rLf mark                  $(BUILDDIR)/plugins/
 	cp -rLf WeDoMore/wedo_plugin  $(BUILDDIR)/plugins/
 	cp -rLf arduino               $(BUILDDIR)/plugins/
-	cp -rLf pattern_detection     $(BUILDDIR)/plugins/
 	cp -rLf xevents               $(BUILDDIR)/plugins/
 	# remove nxt trash
 	rm -rf $(BUILDDIR)/plugins/nxt_plugin/.git
@@ -213,8 +212,6 @@ apply_hard_plugins: apply_localization sourceGIT pattern_detection_compile
 	cp -rLf $(BUILDDIR)/plugins/butia/pybot/usb $(BUILDDIR)/plugins/fischer/
 	cp WeDoMore/README.rst $(BUILDDIR)/plugins/wedo_plugin/
 	cp WeDoMore/LICENSE $(BUILDDIR)/plugins/wedo_plugin/
-	# put pattern_examples into turtle examples folder
-	mv $(BUILDDIR)/plugins/pattern_detection/doc/turtleArtExamples $(BUILDDIR)/samples/pattern_examples
 	# put butia examples into turtle examples folder
 	cp -rf examples/turtle $(BUILDDIR)/samples/butia
 	cp -rf examples/followme $(BUILDDIR)/samples/
@@ -222,15 +219,9 @@ apply_hard_plugins: apply_localization sourceGIT pattern_detection_compile
 	cp -rf xevents/samples $(BUILDDIR)/samples/xevents
 	# put arduino examples into turtle examples folder
 	mv $(BUILDDIR)/plugins/arduino/examples $(BUILDDIR)/samples/arduino
-	# remove unnecessary .o files of pattern_detection
-	rm $(BUILDDIR)/plugins/pattern_detection/library/patterns/*.o
-	# remove ARTollkit binaries
-	rm -rf $(BUILDDIR)/plugins/pattern_detection/library/ARToolkit
 
-pattern_detection_compile:
-	$(MAKE) -C pattern_detection/library
 
-apply_sym_plugins: sourceGIT apply_localization pattern_detection_compile
+apply_sym_plugins: sourceGIT apply_localization
 	# let's make symlinks, it lets you, edit and try, more easily!
 	ln -s `pwd`/ardrone                $(BUILDDIR)/plugins/ardrone
 	ln -s `pwd`/atyarandu              $(BUILDDIR)/plugins/atyarandu
@@ -243,7 +234,6 @@ apply_sym_plugins: sourceGIT apply_localization pattern_detection_compile
 	ln -s `pwd`/nxt_plugin             $(BUILDDIR)/plugins/nxt_plugin
 	ln -s `pwd`/WeDoMore/wedo_plugin   $(BUILDDIR)/plugins/wedo_plugin
 	ln -s `pwd`/arduino                $(BUILDDIR)/plugins/arduino
-	ln -s `pwd`/pattern_detection      $(BUILDDIR)/plugins/pattern_detection
 	ln -s `pwd`/rodi                   $(BUILDDIR)/plugins/rodi
 	ln -s `pwd`/mark                   $(BUILDDIR)/plugins/mark
 	ln -s `pwd`/xevents                $(BUILDDIR)/plugins/xevents
@@ -331,12 +321,6 @@ plugin-arduino: apply_hard_plugins
 	rm $(BUILDDIR)/plugins/plugin.info
 	mv $(BUILDDIR)/plugins/arduino_plugin.tar.gz .
 
-plugin-marcas: apply_hard_plugins
-	cp stagin/plugins/pattern_detection/plugin.info $(BUILDDIR)/plugins
-	cd $(BUILDDIR)/plugins && tar -czvf pattern_detection.tar.gz pattern_detection/* plugin.info
-	rm $(BUILDDIR)/plugins/plugin.info
-	mv $(BUILDDIR)/plugins/pattern_detection.tar.gz .
-
 plugin-rodi: apply_hard_plugins
 	cp stagin/plugins/rodi/plugin.info $(BUILDDIR)/plugins
 	cd $(BUILDDIR)/plugins && tar -czvf rodi_plugin.tar.gz rodi/* plugin.info
@@ -356,7 +340,7 @@ plugin-xevents: apply_hard_plugins
 	mv $(BUILDDIR)/plugins/xevents_plugin.tar.gz .
 
 plugins: plugin-butia plugin-followme plugin-colorview plugin-nxt plugin-wedo \
-         plugin-marcas plugin-arduino plugin-rodi plugin-xevents plugin-ax12 plugin-mark
+         plugin-arduino plugin-rodi plugin-xevents plugin-ax12 plugin-mark
 
 plugin-all: plugins
 
@@ -429,7 +413,6 @@ uninstall-rules:
 ################################# CLEAN STUFF ##################################
 
 clean: clean-tmp clean-plugins clean-xo clean-builddir
-	$(MAKE) -C pattern_detection/library clean
 	# this remove only if it's a symlink ; don't remove if installed
 	rm -f ~/Activities/TurtleBots.activity
 
@@ -455,5 +438,5 @@ clean-plugins:
  install install-strip install-dependencies \
  uninstall uninstall-strip plugin-mark\
  plugin-butia plugin-followme plugin-nxt plugin-wedo plugins plugin-all \
- dev pattern_detection_compile plugin-arduino plugin-rodi plugin-fischer \
+ dev plugin-arduino plugin-rodi plugin-fischer \
  plugin-colorview plugin-xevents plugin-ax12 plugin-atyarandu plugin-ardrone
