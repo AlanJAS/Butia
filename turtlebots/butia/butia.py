@@ -931,8 +931,7 @@ class Butia(Plugin):
     def init_gconf(self):
         try:
             self.gconf_client = gconf.client_get_default()
-        except Exception as err:
-            debug_output(_('ERROR: cannot init GCONF client: %s') % err)
+        except:
             self.gconf_client = None
 
     def get_gconf(self, key):
