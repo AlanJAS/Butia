@@ -1,5 +1,3 @@
-# $Id: __init__.py,v 1.5 2007/06/10 14:11:58 mggrant Exp $
-#
 # Xlib.ext.__init__ -- X extension modules
 #
 #    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>
@@ -23,10 +21,12 @@
 # protocol.  extmod is the name of the module in this package.
 
 __extensions__ = [
-    ('RECORD', 'record'),
     ('XTEST', 'xtest'),
     ('SHAPE', 'shape'),
     ('XINERAMA', 'xinerama'),
+    ('RECORD', 'record'),
+    ('Composite', 'composite'),
+    ('RANDR', 'randr'),
     ]
 
-__all__ = map(lambda x: x[1], __extensions__)
+__all__ = [x[1] for x in __extensions__]

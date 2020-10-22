@@ -1,8 +1,7 @@
-# $Id: xauth.py,v 1.5 2007/06/10 14:11:58 mggrant Exp $
-#
 # Xlib.xauth -- ~/.Xauthority access
 #
 #    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>
+#    Copyright (C) 2013 LiuLang <gsushzhsosgsu@gmail.com>
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -42,7 +41,7 @@ class Xauthority:
 
         try:
             raw = open(filename, 'rb').read()
-        except IOError, err:
+        except OSError as err:
             raise error.XauthError('~/.Xauthority: %s' % err)
 
         self.entries = []
@@ -83,13 +82,12 @@ class Xauthority:
                 if len(data) != length:
                     break
 
-                self.entries.append((family, addr, num, name, data))
-        except struct.error, e:
-            print "Xlib.xauth: warning, failed to parse part of xauthority file (%s), aborting all further parsing" % filename
-            #pass
+                self.entries.append((family, addr, num, name, data, ))
+        except struct.error as e:
+            print("Xlib.xauth: warning, failed to parse part of xauthority file (%s), aborting all further parsing" % filename)
 
         if len(self.entries) == 0:
-            print "Xlib.xauth: warning, no xauthority details available"
+            print("Xlib.xauth: warning, no xauthority details available")
             # raise an error?  this should get partially caught by the XNoAuthError in get_best_auth..
 
     def __len__(self):
@@ -99,7 +97,7 @@ class Xauthority:
         return self.entries[i]
 
     def get_best_auth(self, family, address, dispno,
-                      types = ( "MIT-MAGIC-COOKIE-1", )):
+                      types = ( b"MIT-MAGIC-COOKIE-1", )):
 
         """Find an authentication entry matching FAMILY, ADDRESS and
         DISPNO.
@@ -112,7 +110,8 @@ class Xauthority:
         otherwise XNoAuthError is raised.
         """
 
-        num = str(dispno)
+        num = str(dispno).encode()
+        address = address.encode()
 
         matches = {}
 

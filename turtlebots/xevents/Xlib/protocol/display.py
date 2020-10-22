@@ -1,4 +1,3 @@
-# $Id: display.py,v 1.25 2007/06/10 14:11:58 mggrant Exp $
 # -*- coding: latin-1 -*-
 #
 # Xlib.protocol.display -- core display communication
@@ -20,11 +19,11 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 # Standard modules
-import sys
-import select
-import struct
 import errno
+import select
 import socket
+import struct
+import sys
 
 # Xlib modules
 from Xlib import error
@@ -32,8 +31,17 @@ from Xlib import error
 from Xlib.support import lock, connect
 
 # Xlib.protocol modules
-import rq
-import event
+from . import rq, event
+
+# in Python 3, bytes are an actual array; in python 2, bytes are still
+# string-like, so in order to get an array element we need to call ord()
+if sys.version[0] >= '3':
+    def _bytes_item(x):
+        return x
+else:
+    def _bytes_item(x):
+        return ord(x)
+
 
 class Display:
     resource_classes = {}
@@ -84,8 +92,8 @@ class Display:
         # Data used by the send-and-recieve loop
         self.sent_requests = []
         self.request_length = 0
-        self.data_send = ''
-        self.data_recv = ''
+        self.data_send = b''
+        self.data_recv = b''
         self.data_sent_bytes = 0
 
         # Resource ID structures
@@ -228,7 +236,7 @@ class Display:
         self.resource_id_lock.acquire()
         try:
             i = self.last_resource_id
-            while self.resource_ids.has_key(i):
+            while i in self.resource_ids:
                 i = i + 1
                 if i > self.info.resource_id_mask:
                     i = 0
@@ -504,8 +512,8 @@ class Display:
 
             # Ignore errors caused by a signal recieved while blocking.
             # All other errors are re-raised.
-            except select.error, err:
-                if err[0] != errno.EINTR:
+            except OSError as err:
+                if err.errno != errno.EINTR:
                     raise err
 
                 # We must lock send_and_recv before we can loop to
@@ -519,7 +527,7 @@ class Display:
             if ws:
                 try:
                     i = self.socket.send(self.data_send)
-                except socket.error, err:
+                except OSError as err:
                     self.close_internal('server: %s' % err[1])
                     raise self.socket_error
 
@@ -535,8 +543,8 @@ class Display:
                 if recieving:
                     try:
                         bytes_recv = self.socket.recv(2048)
-                    except socket.error, err:
-                        self.close_internal('server: %s' % err[1])
+                    except OSError as err:
+                        self.close_internal('server: %s' % err.strerror)
                         raise self.socket_error
 
                     if not bytes_recv:
@@ -641,7 +649,7 @@ class Display:
                 return gotreq
 
             # Check the first byte to find out what kind of response it is
-            rtype = ord(self.data_recv[0])
+            rtype = _bytes_item(self.data_recv[0])
 
             # Error resposne
             if rtype == 0:
@@ -661,13 +669,13 @@ class Display:
 
     def parse_error_response(self, request):
         # Code is second byte
-        code = ord(self.data_recv[1])
+        code = _bytes_item(self.data_recv[1])
 
         # Fetch error class
         estruct = self.error_classes.get(code, error.XError)
 
         e = estruct(self, self.data_recv[:32])
-        self.data_recv = buffer(self.data_recv, 32)
+        self.data_recv = self.data_recv[32:]
 
         # print 'recv Error:', e
 
@@ -721,7 +729,7 @@ class Display:
         req._parse_response(self.data_recv[:self.request_length])
         # print 'recv Request:', req
 
-        self.data_recv = buffer(self.data_recv, self.request_length)
+        self.data_recv = self.data_recv[self.request_length:]
         self.request_length = 0
 
 
@@ -746,7 +754,7 @@ class Display:
 
         e = estruct(display = self, binarydata = self.data_recv[:32])
 
-        self.data_recv = buffer(self.data_recv, 32)
+        self.data_recv = self.data_recv[32:]
 
         # Drop all requests having an error handler,
         # but which obviously succeded.
@@ -968,7 +976,7 @@ class ConnectionSetupRequest(rq.GetAttrData):
 
 
     def __init__(self, display, *args, **keys):
-        self._binary = apply(self._request.to_binary, args, keys)
+        self._binary = self._request.to_binary(*args, **keys)
         self._data = None
 
         # Don't bother about locking, since no other threads have

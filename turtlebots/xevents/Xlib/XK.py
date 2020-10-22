@@ -1,5 +1,3 @@
-# $Id: XK.py,v 1.7 2007/06/10 14:11:58 mggrant Exp $
-#
 # Xlib.XK -- X keysym defs
 #
 #    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>
@@ -22,7 +20,7 @@
 # as a modular keysym definition and loading mechanism. See the keysym
 # definition modules in the Xlib/keysymdef directory.
 
-from X import NoSymbol
+from Xlib.X import NoSymbol
 
 def string_to_keysym(keysym):
     '''Return the (16 bit) numeric code of keysym.

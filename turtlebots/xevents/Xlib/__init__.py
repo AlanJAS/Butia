@@ -1,5 +1,3 @@
-# $Id: __init__.py,v 1.15 2007/06/10 14:11:58 mggrant Exp $
-#
 # Xlib.__init__ -- glue for Xlib package
 #
 #    Copyright (C) 2000-2002 Peter Liljenberg <petli@ctrl-c.liu.se>
@@ -18,13 +16,11 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import string
-
-__version__ = (0, 12)
+__version__ = (0, 15)
 
 __version_extra__ = ''
 
-__version_string__ = string.join(map(str, __version__), '.') + __version_extra__
+__version_string__ = '.'.join(map(str, __version__)) + __version_extra__
 
 __all__ = [
     'X',

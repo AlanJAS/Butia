@@ -1,5 +1,3 @@
-# $Id: vms_connect.py,v 1.3 2007/06/10 14:11:58 mggrant Exp $
-#
 # Xlib.support.vms_connect -- VMS-type display connection functions
 #
 #    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>
@@ -62,7 +60,7 @@ def get_socket(dname, host, dno):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((host, 6000 + dno))
 
-    except socket.error, val:
+    except OSError as val:
         raise error.DisplayConnectionError(dname, str(val))
 
     return s

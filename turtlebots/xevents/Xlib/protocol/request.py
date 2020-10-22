@@ -1,5 +1,3 @@
-# $Id: request.py,v 1.13 2007/06/10 14:11:58 mggrant Exp $
-#
 # Xlib.protocol.request -- definitions of core requests
 #
 #    Copyright (C) 2000-2002 Peter Liljenberg <petli@ctrl-c.liu.se>
@@ -23,8 +21,7 @@
 from Xlib import X
 
 # Xlib.protocol modules
-import rq
-import structs
+from Xlib.protocol import rq, structs
 
 
 class CreateWindow(rq.Request):
@@ -786,7 +783,7 @@ class ListFontsWithInfo(rq.ReplyRequest):
 
     def __init__(self, *args, **keys):
         self._fonts = []
-        apply(ReplyRequest.__init__, (self, ) + args, keys)
+        ReplyRequest.__init__(*(self, ) + args, **keys)
 
     def _parse_response(self, data):
 

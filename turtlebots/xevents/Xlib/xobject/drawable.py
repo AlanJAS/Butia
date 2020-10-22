@@ -1,5 +1,3 @@
-# $Id: drawable.py,v 1.15 2007/06/10 14:11:59 mggrant Exp $
-#
 # Xlib.xobject.drawable -- drawable objects (window and pixmap)
 #
 #    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>
@@ -18,19 +16,12 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import string
 
 from Xlib import X, Xatom, Xutil
 from Xlib.protocol import request, rq
 
 # Other X resource objects
-import resource
-import colormap
-import cursor
-import fontable
-
-# Inter-client communication conventions
-import icccm
+from Xlib.xobject import resource, colormap, cursor, fontable, icccm
 
 class Drawable(resource.Resource):
     __drawable__ = resource.Resource.__resource__
@@ -233,11 +224,11 @@ class Drawable(resource.Resource):
             unit = self.display.info.bitmap_format_scanline_unit
             stride = roundup(width * unit, pad) >> 3
         else:
-            raise ValueError, 'Unknown data format'
+            raise ValueError('Unknown data format')
 
         maxlen = (self.display.info.max_request_length << 2) \
                  - request.PutImage._request.static_size
-        split = maxlen / stride
+        split = maxlen // stride
 
         x1 = 0
         x2 = width
@@ -324,10 +315,12 @@ class Window(Drawable):
     def create_window(self, x, y, width, height, border_width, depth,
                       window_class =  X.CopyFromParent,
                       visual = X.CopyFromParent,
+                      onerror = None,
                       **keys):
 
         wid = self.display.allocate_resource_id()
         request.CreateWindow(display = self.display,
+                             onerror = onerror,
                              depth = depth,
                              wid = wid,
                              parent = self.id,
@@ -461,7 +454,7 @@ class Window(Drawable):
             val = prop.value
             if prop.bytes_after:
                 prop = self.get_property(property, type, sizehint,
-                                         prop.bytes_after / 4 + 1)
+                                         prop.bytes_after // 4 + 1)
                 val = val + prop.value
 
             prop.value = val
@@ -668,7 +661,7 @@ class Window(Drawable):
         if d is None or d.format != 8:
             return None
         else:
-            parts = string.split(d.value, '\0')
+            parts = d.value.split('\0')
             if len(parts) < 2:
                 return None
             else:
@@ -703,7 +696,7 @@ class Window(Drawable):
     def set_wm_colormap_windows(self, windows, onerror = None):
         self.change_property(self.display.get_atom('WM_COLORMAP_WINDOWS'),
                              Xatom.WINDOW, 32,
-                             map(lambda w: w.id, windows),
+                             [w.id for w in windows],
                              onerror = onerror)
 
     def get_wm_colormap_windows(self):
@@ -713,8 +706,8 @@ class Window(Drawable):
             return []
         else:
             cls = self.display.get_resource_class('window', Window)
-            return map(lambda i, d = self.display, c = cls: c(d, i),
-                       d.value)
+            return list(map(lambda i, d = self.display, c = cls: c(d, i),
+                       d.value))
 
 
     def set_wm_client_machine(self, name, onerror = None):
@@ -765,7 +758,7 @@ class Window(Drawable):
     # Returns a DictWrapper, or None
 
     def _get_struct_prop(self, pname, ptype, pstruct):
-        r = self.get_property(pname, ptype, 0, pstruct.static_size / 4)
+        r = self.get_property(pname, ptype, 0, pstruct.static_size // 4)
         if r and r.format == 32:
             value = r.value.tostring()
             if len(value) == pstruct.static_size:
@@ -784,7 +777,7 @@ class Window(Drawable):
         else:
             keys.update(hints)
 
-        value = apply(pstruct.to_binary, (), keys)
+        value = pstruct.to_binary(*(), **keys)
 
         self.change_property(pname, ptype, 32, value, onerror = onerror)
 
@@ -800,9 +793,10 @@ class Pixmap(Drawable):
         self.display.free_resource_id(self.id)
 
     def create_cursor(self, mask,
-                      (fore_red, fore_green, fore_blue),
-                      (back_red, back_green, back_blue),
+                      f_rgb, b_rgb,
                       x, y):
+        fore_red, fore_green, fore_blue = f_rgb
+        back_red, back_green, back_blue = b_rgb
         cid = self.display.allocate_resource_id()
         request.CreateCursor(display = self.display,
                              cid = cid,

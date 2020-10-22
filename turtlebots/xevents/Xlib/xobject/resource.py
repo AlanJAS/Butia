@@ -1,5 +1,3 @@
-# $Id: resource.py,v 1.5 2007/06/10 14:11:59 mggrant Exp $
-#
 # Xlib.xobject.resource -- any X resource object
 #
 #    Copyright (C) 2000 Peter Liljenberg <petli@ctrl-c.liu.se>
@@ -29,14 +27,14 @@ class Resource:
     def __resource__(self):
         return self.id
 
-    def __cmp__(self, obj):
+    def __eq__(self, obj):
         if isinstance(obj, Resource):
             if self.display == obj.display:
-                return cmp(self.id, obj.id)
+                return self.id == obj.id
             else:
-                return cmp(self.display, obj.display)
+                return self.display == obj.display
         else:
-            return cmp(id(self), id(obj))
+            return id(self) == id(obj)
 
     def __hash__(self):
         return int(self.id)
