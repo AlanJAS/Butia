@@ -32,15 +32,15 @@ def sendPacket(dev, pack):
     if len(raw) == 1:
         return -1      # only opcode o nil
     timeout = raw[2]
-    print 'timeout', timeout
+    print('timeout', timeout)
     if timeout == 1:
         return -1
     size = raw[1]
-    print "AX12 answer\n:::SIZE = " + str(size) + "\n:::TIMEOUT = " + str(timeout)
+    print("AX12 answer\n:::SIZE = " + str(size) + "\n:::TIMEOUT = " + str(timeout))
     msg = ''
     for i in range(3,size+3):
         msg = msg + str(raw[i]) + ' '
-    print ":::MESSAGE\n " + msg
+    print(":::MESSAGE\n " + msg)
     return msg
 
 def wheelMode(dev, motor_id):

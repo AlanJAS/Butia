@@ -11,13 +11,13 @@ def getVersion(dev):
     return raw[1] + raw[2] * 256
 
 def setvel2mtr(dev, left_sense, left_vel, right_sense, right_vel):
-    msg = [SET_VEL_2MTR, left_sense, left_vel / 256, left_vel % 256, right_sense, right_vel / 256, right_vel % 256]
+    msg = [SET_VEL_2MTR, left_sense, left_vel // 256, left_vel % 256, right_sense, right_vel // 256, right_vel % 256]
     dev.send(msg)
     raw = dev.read(1)
     return raw[0]
 
 def setvelmtr(dev, motor_id, sense, vel):
-    msg = [SET_VEL_MTR, motor_id, sentido, vel / 256, vel % 256]
+    msg = [SET_VEL_MTR, motor_id, sentido, vel // 256, vel % 256]
     dev.send(msg)
     raw = dev.read(1)
     return raw[0]
