@@ -1,10 +1,10 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # USB4Butia main
 #
-# Copyright (c) 2012-2015 Alan Aguiar alanjas@hotmail.com
-# Copyright (c) 2012-2015 Butiá Team butia@fing.edu.uy
+# Copyright (c) 2012-2020 Alan Aguiar alanjas@hotmail.com
+# Copyright (c) 2012-2020 Butiá Team butia@fing.edu.uy
 # Butia is a free and open robotic platform
 # www.fing.edu.uy/inco/proyectos/butia
 # Facultad de Ingeniería - Universidad de la República - Uruguay
@@ -49,7 +49,7 @@ class USB4Butia(ButiaFunctions):
 
     def _debug(self, message, err=''):
         if self._debug_flag:
-            print message, err
+            print(message, err)
 
     def closeService(self):
         """
@@ -88,12 +88,12 @@ class USB4Butia(ButiaFunctions):
                         self._debug('=====module ' + module_name + (9 - len(module_name)) * ' ' + complete_name)
                         if not(module_name == 'port'):
                             modules.append(complete_name)
-                            if not(b.devices.has_key(m) and (b.devices[m].name == module_name)):
+                            if not(m in b.devices and (b.devices[m].name == module_name)):
                                 d = Device(b, module_name, m, self._drivers_loaded[module_name], module_name in self._openables)
                                 b.add_device(m, d)
                         else:
                             b.remove_device(m)
-            except Exception, err:
+            except Exception as err:
                 self._debug('ERROR:usb4butia:get_modules_list', err)
         return modules
 
@@ -145,14 +145,14 @@ class USB4Butia(ButiaFunctions):
             if len(self._bb) < (board_number + 1):
                 return ERROR
             board = self._bb[board_number]
-            if board.devices.has_key(number) and (board.devices[number].name == modulename):
+            if number in board.devices and (board.devices[number].name == modulename):
                 return board.devices[number].call_function(function, params)
             else:
                 number = self._open_or_validate(modulename, board)
                 if number == ERROR:
                     return ERROR
                 return board.devices[number].call_function(function, params)
-        except Exception, err:
+        except Exception as err:
             if hasattr(err, 'errno'):
                 if (err.errno == 5) or (err.errno == 19):
                     self.closeB(board)
@@ -175,7 +175,7 @@ class USB4Butia(ButiaFunctions):
                         b.open_baseboard()
                         self._bb.append(b)
                         self._b_ports.append(n)
-                    except Exception, err:
+                    except Exception as err:
                         self._debug('ERROR:usb4butia:refresh', err)
 
         for b in self._bb:
@@ -250,7 +250,7 @@ class USB4Butia(ButiaFunctions):
                     if res == 1:
                         board.remove_device(number)
                         return res
-                except Exception, err:
+                except Exception as err:
                     self._debug('ERROR:usb4butia:moduleClose', err)
                     return ERROR
             else:
@@ -279,7 +279,7 @@ class USB4Butia(ButiaFunctions):
         mod = split[1]
         funcs = []
         d = {}
-        if self._drivers_loaded.has_key(mod):
+        if mod in self._drivers_loaded:
             driver = self._drivers_loaded[mod]
             a = dir(driver)
             if '__package__' in a:

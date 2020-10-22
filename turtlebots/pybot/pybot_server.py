@@ -1,10 +1,10 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # Pybot server
 #
-# Copyright (c) 2012-2015 Alan Aguiar alanjas@hotmail.com
-# Copyright (c) 2012-2015 Butiá Team butia@fing.edu.uy
+# Copyright (c) 2012-2020 Alan Aguiar alanjas@hotmail.com
+# Copyright (c) 2012-2020 Butiá Team butia@fing.edu.uy
 # Butia is a free and open robotic platform
 # www.fing.edu.uy/inco/proyectos/butia
 # Facultad de Ingeniería - Universidad de la República - Uruguay
@@ -58,19 +58,20 @@ class Server():
 
             try:
                 inputready,outputready,exceptready = select.select(inputs, [], [])
-            except Exception, err:
-                print 'Error in select', err
+            except Exception as err:
+                print('Error in select', err)
                 break
 
             for s in inputready:
                 if s == self.socket:
                     client, addr = self.socket.accept()
-                    print 'New client: ', str(addr)
+                    print('New client: ', str(addr))
                     inputs.append(client)
                     self.clients[client] = addr
                 else:
                     try:
                         data = s.recv(BUFSIZ)
+                        data = data.decode()
                         if data:
                             result = ''
                             r = data.replace('\r', '')
@@ -83,32 +84,32 @@ class Server():
                                     result = f(self, r[1:])
                                 else:
                                     result = "Unknown command '" + com + "'"
-                            result = str(result)
-                            s.send(result + '\n')
+                            result = str(result) + '\n'
+                            s.send(result.encode())
                         else:
                             s.close()
                             inputs.remove(s)
                             self.clients.pop(s)
-                    except Exception, err:
-                        print 'Error in recv', err
+                    except Exception as err:
+                        print('Error in recv', err)
                         inputs.remove(s)
                         self.clients.pop(s)
                         
-        print 'Closing server'
+        print('Closing server')
         self.socket.close()
         self.robot.close()
 
 def show_help():
-    print "Open PyBot server in PORT 2009"
-    print ""
-    print "Usage:"
-    print " pybot_server.py [OPTIONS]"
-    print ""
-    print "Opciones:"
-    print " -h, --help                 muestra esta ayuda"
-    print " chotox                     simulador de robot"
-    print " DEBUG                      habilita los mensajes de depuración"
-    print ""
+    print("Open PyBot server in PORT 2009")
+    print("")
+    print("Usage:")
+    print(" pybot_server.py [OPTIONS]")
+    print("")
+    print("Opciones:")
+    print(" -h, --help                 muestra esta ayuda")
+    print(" chotox                     simulador de robot")
+    print(" DEBUG                      habilita los mensajes de depuración")
+    print("")
 
 if __name__ == "__main__":
     argv = sys.argv[:]

@@ -1,10 +1,10 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # Chotox utility for debug
 #
-# Copyright (c) 2012-2015 Alan Aguiar alanjas@hotmail.com
-# Copyright (c) 2012-2015 Butiá Team butia@fing.edu.uy
+# Copyright (c) 2012-2020 Alan Aguiar alanjas@hotmail.com
+# Copyright (c) 2012-2020 Butiá Team butia@fing.edu.uy
 # Butia is a free and open robotic platform
 # www.fing.edu.uy/inco/proyectos/butia
 # Facultad de Ingeniería - Universidad de la República - Uruguay
@@ -64,12 +64,12 @@ class Chotox(USB4Butia):
         self._debug('===board', 0)
         b = self._bb[0]
         for i in range(self.max_h):
-            if b.devices.has_key(i):
+            if i in b.devices:
                 module_name = b.devices[i].name
             elif i <= self.max_p:
                 module_name = 'port'
             
-            if b.devices.has_key(i) or (i < 7):
+            if i in b.devices or (i < 7):
                 complete_name = module_name + ':' +  str(i)
                 modules.append(complete_name)
                 self._debug('=====module ' + module_name + (9 - len(module_name)) * ' ' + complete_name)

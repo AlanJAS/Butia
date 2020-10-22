@@ -1,10 +1,10 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # USB comunication with USB4butia (USB4all) board
 #
-# Copyright (c) 2012-2015 Alan Aguiar alanjas@hotmail.com
-# Copyright (c) 2012-2015 Butiá Team butia@fing.edu.uy
+# Copyright (c) 2012-2020 Alan Aguiar alanjas@hotmail.com
+# Copyright (c) 2012-2020 Butiá Team butia@fing.edu.uy
 # Butia is a free and open robotic platform
 # www.fing.edu.uy/inco/proyectos/butia
 # Facultad de Ingeniería - Universidad de la República - Uruguay
@@ -44,7 +44,7 @@ class usb_device():
 
     def _debug(self, message, err=''):
         if self.debug:
-            print message, err
+            print(message, err)
 
     def open_device(self):
         """
@@ -54,7 +54,7 @@ class usb_device():
             if os.name != 'nt' and self.dev.is_kernel_driver_active(USB4ALL_INTERFACE):
                 self.dev.detach_kernel_driver(USB4ALL_INTERFACE)
             self.dev.set_configuration(USB4ALL_CONFIGURATION)
-        except usb.USBError, err:
+        except usb.USBError as err:
             self._debug('ERROR:com_usb:open_device', err)
             raise
 
@@ -71,7 +71,7 @@ class usb_device():
         """
         try:
             return self.dev.read(ADMIN_MODULE_OUT_ENDPOINT, size, TIMEOUT)
-        except Exception, err:
+        except Exception as err:
             self._debug('ERROR:com_usb:read', err)
             raise
  
@@ -81,7 +81,7 @@ class usb_device():
         """
         try:
             return self.dev.write(ADMIN_MODULE_IN_ENDPOINT, data, TIMEOUT)
-        except Exception, err:
+        except Exception as err:
             self._debug('ERROR:com_usb:write', err)
             raise
 
@@ -103,7 +103,7 @@ class usb_device():
             copy = usb.util.get_string(self.dev, 2).encode('ascii')
             sn = usb.util.get_string(self.dev, 3).encode('ascii')
             return [names, copy, sn]
-        except Exception, err:
+        except Exception as err:
             self._debug('ERROR:com_usb:get_info', err)
             raise
 

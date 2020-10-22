@@ -1,10 +1,10 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # Device abstraction for USB4butia
 #
-# Copyright (c) 2012-2015 Alan Aguiar alanjas@hotmail.com
-# Copyright (c) 2012-2015 Butiá Team butia@fing.edu.uy
+# Copyright (c) 2012-2020 Alan Aguiar alanjas@hotmail.com
+# Copyright (c) 2012-2020 Butiá Team butia@fing.edu.uy
 # Butia is a free and open robotic platform
 # www.fing.edu.uy/inco/proyectos/butia
 # Facultad de Ingeniería - Universidad de la República - Uruguay
@@ -50,7 +50,7 @@ class Device():
 
     def _debug(self, message, err=''):
         if self.debug:
-            print message, err
+            print(message, err)
 
     def send(self, msg):
         """

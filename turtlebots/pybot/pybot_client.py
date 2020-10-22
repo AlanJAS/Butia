@@ -1,10 +1,10 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # Client for pybot_server
 #
-# Copyright (c) 2012-2015 Alan Aguiar alanjas@hotmail.com
-# Copyright (c) 2009-2015 Butiá Team butia@fing.edu.uy
+# Copyright (c) 2012-2020 Alan Aguiar alanjas@hotmail.com
+# Copyright (c) 2009-2020 Butiá Team butia@fing.edu.uy
 # Butia is a free and open robotic platform
 # www.fing.edu.uy/inco/proyectos/butia
 # Facultad de Ingeniería - Universidad de la República - Uruguay
@@ -54,13 +54,15 @@ class robot(ButiaFunctions):
         @param msg message to be executed
         """
         msg = msg + '\n'
+        msg = msg.encode()
         ret = ERROR
         self._lock.acquire()
-        try:     
+        try:
             self._client.send(msg)
             ret = self._client.recv(1024)
+            ret = ret.decode()
             ret = ret[:-1]
-        except Exception, e:
+        except Exception as e:
             self._process_error(e)
         try:
             ret = ret_type(ret)
@@ -167,17 +169,17 @@ class robot(ButiaFunctions):
         return self._doCommand('CLOSE ' + mod, int)
 
 def show_help():
-    print "Open PyBot client in HOST and PORT."
-    print ""
-    print "Usage:"
-    print " pybot_client.py"
-    print " pybot_client.py [HOST]"
-    print " pybot_client.py [HOST] [PORT]"
-    print ""
-    print "Default values:"
-    print " HOST                      localhost"
-    print " PORT                      2009"
-    print ""
+    print("Open PyBot client in HOST and PORT.")
+    print("")
+    print("Usage:")
+    print(" pybot_client.py")
+    print(" pybot_client.py [HOST]")
+    print(" pybot_client.py [HOST] [PORT]")
+    print("")
+    print("Default values:")
+    print(" HOST                      localhost")
+    print(" PORT                      2009")
+    print("")
 
 if __name__ == "__main__":
     argv = sys.argv[:]
@@ -193,9 +195,9 @@ if __name__ == "__main__":
         c = robot(server_host, server_port)
         run = True
         while run:
-            m = raw_input("> ")
+            m = input("> ")
             ret = c._doCommand(m)
-            print ret
+            print(ret)
             if m == "QUIT":  
                 run = False
         c.close()

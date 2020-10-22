@@ -1,10 +1,10 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # Baseboard abstraction for USB4butia
 #
-# Copyright (c) 2012-2015 Alan Aguiar alanjas@hotmail.com
-# Copyright (c) 2012-2015 Butiá Team butia@fing.edu.uy
+# Copyright (c) 2012-2020 Alan Aguiar alanjas@hotmail.com
+# Copyright (c) 2012-2020 Butiá Team butia@fing.edu.uy
 # Butia is a free and open robotic platform
 # www.fing.edu.uy/inco/proyectos/butia
 # Facultad de Ingeniería - Universidad de la República - Uruguay
@@ -57,7 +57,7 @@ class Baseboard():
 
     def _debug(self, message, err=''):
         if self.debug:
-            print message, err
+            print(message, err)
 
     def open_baseboard(self):
         """
@@ -90,7 +90,7 @@ class Baseboard():
         """
         Remove a device with handler of the dictionary
         """
-        if self.devices.has_key(handler):
+        if handler in self.devices:
             dev = self.devices.pop(handler)
             if dev.openable:
                 if dev.name in self.openables_loaded:
@@ -158,7 +158,7 @@ class Baseboard():
         """
         Get the name of device with handler: handler
         """
-        if self.devices.has_key(handler):
+        if handler in self.devices:
             return self.devices[handler].name
         else:
             return ''
