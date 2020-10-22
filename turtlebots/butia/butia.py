@@ -1,7 +1,7 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 # 
-# Copyright (c) 2011-2013 Butiá Team butia@fing.edu.uy 
+# Copyright (c) 2011-2020 Butiá Team butia@fing.edu.uy
 # Butia is a free and open robotic platform
 # www.fing.edu.uy/inco/proyectos/butia
 # Facultad de Ingeniería - Universidad de la República - Uruguay
@@ -149,7 +149,7 @@ class Butia(Plugin):
         Plugin.__init__(self)
         self.tw = parent
         self.init_gconf()
-        power_manager_off(True)
+        #power_manager_off(True)
         self.butia = pybot_client.robot(auto_connect=False)
         self.actualSpeed = [600, 600]
         self.active_butia = 0
@@ -541,7 +541,7 @@ class Butia(Plugin):
         self.butia.close()
         if self.bobot:
             self.bobot.kill()
-        power_manager_off(False)
+        #power_manager_off(False)
 
     ################################ Refresh process ################################
 
@@ -931,7 +931,7 @@ class Butia(Plugin):
     def init_gconf(self):
         try:
             self.gconf_client = gconf.client_get_default()
-        except Exception, err:
+        except Exception as err:
             debug_output(_('ERROR: cannot init GCONF client: %s') % err)
             self.gconf_client = None
 
