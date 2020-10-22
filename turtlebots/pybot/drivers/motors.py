@@ -17,7 +17,7 @@ def setvel2mtr(dev, left_sense, left_vel, right_sense, right_vel):
     return raw[0]
 
 def setvelmtr(dev, motor_id, sense, vel):
-    msg = [SET_VEL_MTR, motor_id, sentido, vel // 256, vel % 256]
+    msg = [SET_VEL_MTR, motor_id, sense, vel // 256, vel % 256]
     dev.send(msg)
     raw = dev.read(1)
     return raw[0]
