@@ -27,7 +27,8 @@ import os
 import sys
 import time
 import types
-import gtk.gdk
+
+from gi.repository import Gtk
 
 try:
     import gconf
@@ -903,7 +904,7 @@ class Xevents(Plugin):
         try:
             self.gconf_client = gconf.client_get_default()
         except Exception as err:
-            debug_output(_('ERROR: cannot init GCONF client: %s') % err)
+            print(_('ERROR: cannot init GCONF client: %s') % err)
             self.gconf_client = None
 
     def get_gconf(self, key):
@@ -991,7 +992,7 @@ class Xevents(Plugin):
         self._parent.lc.tw.activity.win.iconify()
      
     def get_color_at(self, cx, cy):
-        rw = gtk.gdk.get_default_root_window()
+        rw = Gtk.Gdk.get_default_root_window()
         pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, 1, 1)
         pixbuf = pixbuf.get_from_drawable(rw, rw.get_colormap(), int(cx), int(cy), 0, 0, 1, 1)
         return '#%02x%02x%02x' % (tuple(pixbuf.pixel_array[0, 0]))
