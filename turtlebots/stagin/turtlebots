@@ -1,7 +1,7 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 # 
-# Copyright (c) 2011 Butiá Team butia@fing.edu.uy 
+# Copyright (c) 2020 Butiá Team butia@fing.edu.uy
 # Butia is a free open plataform for robotics projects
 # www.fing.edu.uy/inco/proyectos/butia
 # Universidad de la República del Uruguay
