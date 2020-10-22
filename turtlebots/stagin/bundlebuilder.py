@@ -1,7 +1,5 @@
-#!/usr/bin/env python
-#
 # Copyright (C) 2008 Red Hat, Inc.
-# Copyright (C) 2013 Alan Aguiar
+# Copyright (C) 2016 Sam Parkinson <sam@sam.today>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -18,21 +16,41 @@
 # Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
+'''
+The bundle builder is a build system for Sugar activities.  Usually, it
+is setup by creating a `setup.py` file in the project with the following::
 
+    #!/usr/bin/env python
+
+    from sugar3.activity import bundlebuilder
+    bundlebuilder.start()
+'''
+
+import six
+import argparse
 import operator
 import os
 import sys
+import zipfile
+import tarfile
+import unittest
 import shutil
 import subprocess
 import re
 import gettext
-from optparse import OptionParser
 import logging
+from glob import glob
 from fnmatch import fnmatch
-from ConfigParser import ConfigParser
+from six.moves.configparser import ConfigParser
+import xml.etree.cElementTree as ET
+from six.moves.html_parser import HTMLParser
+
+from sugar3 import env
+from sugar3.bundle.activitybundle import ActivityBundle
+from six.moves import reduce
 
 
-IGNORE_DIRS = ['dist', '.git', 'debian', '.pc', 'locale']
+IGNORE_DIRS = ['dist', '.git', 'screenshots', 'debian', '.pc']
 IGNORE_FILES = ['.gitignore', 'MANIFEST', '*.pyc', '*~', '*.bak', 'pseudo.po']
 
 
@@ -60,9 +78,10 @@ def list_files(base_dir, ignore_dirs=None, ignore_files=None):
 
 class Config(object):
 
-    def __init__(self, source_dir=None, dist_dir=None, dist_name=None):
-        self.source_dir = source_dir or os.getcwd()
-        self.dist_dir = dist_dir or os.path.join(self.source_dir, 'dist')
+    def __init__(self, source_dir, dist_dir=None, dist_name=None):
+        self.source_dir = source_dir
+        self.build_dir = os.getcwd()
+        self.dist_dir = dist_dir or os.path.join(self.build_dir, 'dist')
         self.dist_name = dist_name
         self.bundle = None
         self.version = None
@@ -73,35 +92,25 @@ class Config(object):
         self.tar_root_dir = None
         self.xo_name = None
         self.tar_name = None
+        self.summary = None
+        self.description = None
 
         self.update()
 
     def update(self):
-        cp = ConfigParser()
-        info_file = os.path.abspath('./activity/activity.info')
-        cp.read(info_file)
-
-        if cp.has_option('Activity', 'activity_version'):
-            self.version = cp.get('Activity', 'activity_version')
-        else:
-            print 'Activity bundle has invalid version number'
-
-        if cp.has_option('Activity', 'name'):
-            self.activity_name = cp.get('Activity', 'name')
-        else:
-            print 'Activity bundle does not specify a name'
-
-        if cp.has_option('Activity', 'bundle_id'):
-            self.bundle_id = cp.get('Activity', 'bundle_id')
-        else:
-            print 'Activity bundle does not specify a bundle id'
-
+        self.bundle = bundle = ActivityBundle(self.source_dir,
+                                              translated=False)
+        self.version = bundle.get_activity_version()
+        self.activity_name = bundle.get_name()
+        self.bundle_id = bundle.get_bundle_id()
+        self.summary = bundle.get_summary()
+        self.description = bundle.get_description()
         self.bundle_name = reduce(operator.add, self.activity_name.split())
         self.bundle_root_dir = self.bundle_name + '.activity'
         self.tar_root_dir = '%s-%s' % (self.bundle_name, self.version)
-
         if self.dist_name:
-            self.xo_name = self.tar_name = self.dist_name
+            self.xo_name = '%s.xo' % self.dist_name
+            self.tar_name = '%s.tar.bz2' % self.dist_name
         else:
             self.xo_name = '%s-%s.xo' % (self.bundle_name, self.version)
             self.tar_name = '%s-%s.tar.bz2' % (self.bundle_name, self.version)
@@ -109,8 +118,10 @@ class Config(object):
 
 class Builder(object):
 
-    def __init__(self, config):
+    def __init__(self, config, no_fail=False):
         self.config = config
+        self._no_fail = no_fail
+        self.locale_dir = os.path.join(self.config.build_dir, 'locale')
 
     def build(self):
         self.build_locale()
@@ -118,23 +129,21 @@ class Builder(object):
     def build_locale(self):
         po_dir = os.path.join(self.config.source_dir, 'po')
 
-        if not os.path.isdir(po_dir):
+        if not self.config.bundle.is_dir(po_dir):
             logging.warn('Missing po/ dir, cannot build_locale')
             return
 
-        locale_dir = os.path.join(self.config.source_dir, 'locale')
+        if os.path.exists(self.locale_dir):
+            shutil.rmtree(self.locale_dir)
 
-        if os.path.exists(locale_dir):
-            shutil.rmtree(locale_dir)
-
-        for f in os.listdir(po_dir):
+        for f in sorted(os.listdir(po_dir)):
             if not f.endswith('.po') or f == 'pseudo.po':
                 continue
 
             file_name = os.path.join(po_dir, f)
             lang = f[:-3]
 
-            localedir = os.path.join(self.config.source_dir, 'locale', lang)
+            localedir = os.path.join(self.config.build_dir, 'locale', lang)
             mo_path = os.path.join(localedir, 'LC_MESSAGES')
             if not os.path.isdir(mo_path):
                 os.makedirs(mo_path)
@@ -143,20 +152,28 @@ class Builder(object):
             args = ['msgfmt', '--output-file=%s' % mo_file, file_name]
             retcode = subprocess.call(args)
             if retcode:
-                print 'ERROR - msgfmt failed with return code %i.' % retcode
-                exit (1)
+                print('ERROR - msgfmt failed with return code %i.' % retcode)
+                if self._no_fail:
+                    continue
 
-            cat = gettext.GNUTranslations(open(mo_file, 'r'))
+            cat = gettext.GNUTranslations(open(mo_file, 'rb'))
             translated_name = cat.gettext(self.config.activity_name)
+            translated_summary = cat.gettext(self.config.summary)
+            if translated_summary is None:
+                translated_summary = ''
+            if translated_summary.find('\n') > -1:
+                translated_summary = translated_summary.replace('\n', '')
+                logging.warn(
+                    'Translation of summary on file %s have \\n chars. '
+                    'Should be removed' % file_name)
             linfo_file = os.path.join(localedir, 'activity.linfo')
             f = open(linfo_file, 'w')
             f.write('[Activity]\nname = %s\n' % translated_name)
+            f.write('summary = %s\n' % translated_summary)
             f.close()
 
-    def get_files(self):
-        allfiles = list_files(self.config.source_dir,
-                              IGNORE_DIRS, IGNORE_FILES)
-        return allfiles
+    def get_locale_files(self):
+        return list_files(self.locale_dir, IGNORE_DIRS, IGNORE_FILES)
 
 
 class Packager(object):
@@ -168,22 +185,54 @@ class Packager(object):
         if not os.path.exists(self.config.dist_dir):
             os.mkdir(self.config.dist_dir)
 
-    def get_files_in_git(self):
-        git_ls = subprocess.Popen(['git', 'ls-files'], stdout=subprocess.PIPE,
-                                  cwd=self.config.source_dir)
-        stdout, _ = git_ls.communicate()
-        if git_ls.returncode:
-            # Fall back to filtered list
-            return list_files(self.config.source_dir,
-                              IGNORE_DIRS, IGNORE_FILES)
+    def get_files_in_git(self, root=None):
+        if root is None:
+            root = self.config.source_dir
 
-        # pylint: disable=E1103
-        files = [path.strip() for path in stdout.strip('\n').split('\n')]
+        git_ls = None
+        try:
+            git_ls = subprocess.Popen(['git', 'ls-files'],
+                                      stdout=subprocess.PIPE,
+                                      cwd=root)
+        except OSError:
+            logging.warn('Packager: git is not installed, '
+                         'fall back to filtered list')
 
-        # remove possible unnecesary tracked files
-        for pattern in IGNORE_FILES:
-            files = [f for f in files if not fnmatch(f, pattern)]
-        return files
+        if git_ls is not None:
+            stdout, _ = git_ls.communicate()
+            if git_ls.returncode:
+                # Fall back to filtered list
+                logging.warn('Packager: this is not a git repository, '
+                             'fall back to filtered list')
+            elif stdout:
+                # pylint: disable=E1103
+                git_output = [path.strip() for path in
+                              stdout.decode().strip('\n').split('\n')]
+                files = []
+                for line in git_output:
+                    ignore = False
+                    for directory in IGNORE_DIRS:
+                        if line.startswith(directory + '/'):
+                            ignore = True
+                            break
+                    if not ignore:
+                        sub_path = os.path.join(root, line)
+                        if os.path.isdir(sub_path) \
+                           and os.path.exists(os.path.join(sub_path, '.git')):
+                            sub_list = self.get_files_in_git(sub_path)
+                            for f in sub_list:
+                                files.append(os.path.join(line, f))
+                        else:
+                            files.append(line)
+
+                for pattern in IGNORE_FILES:
+                    files = [f for f in files if not fnmatch(f, pattern)]
+
+                return files
+
+        return list_files(self.config.source_dir,
+                          IGNORE_DIRS, IGNORE_FILES)
+
 
 class XOPackager(Packager):
 
@@ -196,17 +245,15 @@ class XOPackager(Packager):
                                          self.config.xo_name)
 
     def package(self):
-        import zipfile
         bundle_zip = zipfile.ZipFile(self.package_path, 'w',
                                      zipfile.ZIP_DEFLATED)
 
         for f in self.get_files_in_git():
             bundle_zip.write(os.path.join(self.config.source_dir, f),
                              os.path.join(self.config.bundle_root_dir, f))
-        locale_dir = os.path.join(self.config.source_dir, 'locale')
-        locale_files = list_files(locale_dir, IGNORE_DIRS, IGNORE_FILES)
-        for f in locale_files:
-            bundle_zip.write(os.path.join(locale_dir, f),
+
+        for f in self.builder.get_locale_files():
+            bundle_zip.write(os.path.join(self.builder.locale_dir, f),
                              os.path.join(self.config.bundle_root_dir,
                                           'locale', f))
 
@@ -221,7 +268,6 @@ class SourcePackager(Packager):
                                          self.config.tar_name)
 
     def package(self):
-        import tarfile
         tar = tarfile.open(self.package_path, 'w:bz2')
         for f in self.get_files_in_git():
             tar.add(os.path.join(self.config.source_dir, f),
@@ -229,36 +275,36 @@ class SourcePackager(Packager):
         tar.close()
 
 
-class Installer(object):
-    IGNORES = ['po/*', 'MANIFEST', 'AUTHORS']
-
+class Installer(Packager):
     def __init__(self, builder):
-        self.config = builder.config
+        Packager.__init__(self, builder.config)
         self.builder = builder
 
-    def should_ignore(self, f):
-        for pattern in self.IGNORES:
-            if fnmatch(f, pattern):
-                return True
-        return False
-
-    def install(self, prefix):
+    def install(self, prefix, install_mime=True, install_desktop_file=True):
         self.builder.build()
 
         activity_path = os.path.join(prefix, 'share', 'sugar', 'activities',
                                      self.config.bundle_root_dir)
 
         source_to_dest = {}
-        for f in self.builder.get_files():
-            if self.should_ignore(f):
-                pass
-            elif f.startswith('locale/') and f.endswith('.mo'):
-                source_to_dest[f] = os.path.join(prefix, 'share', f)
-            else:
-                source_to_dest[f] = os.path.join(activity_path, f)
 
-        for source, dest in source_to_dest.items():
-            print 'Install %s to %s.' % (source, dest)
+        for f in self.get_files_in_git():
+            source_path = os.path.join(self.config.source_dir, f)
+            dest_path = os.path.join(activity_path, f)
+            source_to_dest[source_path] = dest_path
+
+        for f in self.builder.get_locale_files():
+            source_path = os.path.join(self.builder.locale_dir, f)
+
+            if source_path.endswith(".mo"):
+                dest_path = os.path.join(prefix, 'share', 'locale', f)
+            else:
+                dest_path = os.path.join(activity_path, 'locale', f)
+
+            source_to_dest[source_path] = dest_path
+
+        for source, dest in list(source_to_dest.items()):
+            print('Install %s to %s.' % (source, dest))
 
             path = os.path.dirname(dest)
             if not os.path.exists(path):
@@ -266,18 +312,157 @@ class Installer(object):
 
             shutil.copy(source, dest)
 
-        self.config.bundle.install_mime_type(self.config.source_dir)
+        if install_mime:
+            self.config.bundle.install_mime_type(self.config.source_dir)
+
+        if install_desktop_file:
+            self._install_desktop_file(prefix, activity_path)
+            self._generate_appdata(prefix, activity_path)
+
+    def _install_desktop_file(self, prefix, activity_path):
+        cp = ConfigParser()
+        section = 'Desktop Entry'
+        cp.add_section(section)
+        cp.optionxform = str  # Allow CamelCase entries
+
+        # Get it from the activity.info for the non-translated version
+        info = ConfigParser()
+        info.read(os.path.join(activity_path, 'activity', 'activity.info'))
+        cp.set(section, 'Name', info.get('Activity', 'name'))
+        if info.has_option('Activity', 'summary'):
+            cp.set(section, 'Comment', info.get('Activity', 'summary'))
+
+        for path in sorted(glob(os.path.join(activity_path, 'locale',
+                                             '*', 'activity.linfo'))):
+            locale = path.split(os.path.sep)[-2]
+            info = ConfigParser()
+            info.read(path)
+            if info.has_option('Activity', 'name'):
+                cp.set(section, 'Name[{}]'.format(locale),
+                       info.get('Activity', 'name'))
+            if info.has_option('Activity', 'summary'):
+                cp.set(section, 'Comment[{}]'.format(locale),
+                       info.get('Activity', 'summary'))
+
+        cp.set(section, 'Terminal', 'false')
+        cp.set(section, 'Type', 'Application')
+        cp.set(section, 'Categories', 'Education;')
+        cp.set(section, 'Icon', os.path.join(
+            activity_path, 'activity', self.config.bundle.get_icon_filename()))
+        cp.set(section, 'Exec', self.config.bundle.get_command())
+        cp.set(section, 'Path', activity_path)  # Path == CWD for running
+
+        name = '{}.activity.desktop'.format(self.config.bundle_id)
+        path = os.path.join(prefix, 'share', 'applications', name)
+        if not os.path.isdir(os.path.dirname(path)):
+            os.makedirs(os.path.dirname(path))
+        with open(path, 'w') as f:
+            cp.write(f)
+
+    def _generate_appdata(self, prefix, activity_path):
+        info = ConfigParser()
+        info.read(os.path.join(activity_path, 'activity', 'activity.info'))
+
+        required_fields = ['metadata_license', 'license', 'name', 'icon',
+                           'description']
+        for name in required_fields:
+            if not info.has_option('Activity', name):
+                print('[WARNING] missing AppStream metadata, '
+                      'see `pydoc sugar3.bundle`')
+                return
+
+        # See https://www.freedesktop.org/software/appstream/docs/
+        root = ET.Element('component', type='desktop')
+        ET.SubElement(root, 'project_group').text = 'Sugar'
+        ET.SubElement(root, 'translation', type='gettext').text = \
+            self.config.bundle_id
+        ET.SubElement(root, 'id').text = \
+            self.config.bundle_id + '.activity.desktop'
+        desc = ET.fromstring('<description>{}</description>'.format(
+            info.get('Activity', 'description')))
+        root.append(desc)
+
+        copy_pairs = [('metadata_license', 'metadata_license'),
+                      ('license', 'project_license'),
+                      ('summary', 'summary'),
+                      ('name', 'name')]
+        for key, ename in copy_pairs:
+            ET.SubElement(root, ename).text = info.get('Activity', key)
+
+        if info.has_option('Activity', 'screenshots'):
+            screenshots = info.get('Activity', 'screenshots').split()
+            ss_root = ET.SubElement(root, 'screenshots')
+            for i, screenshot in enumerate(screenshots):
+                e = ET.SubElement(ss_root, 'screenshot')
+                if i == 0:
+                    e.set('type', 'default')
+                ET.SubElement(e, 'image').text = screenshot
+
+        if info.has_option('Activity', 'url'):
+            ET.SubElement(root, 'url', type='homepage').text = \
+                info.get('Activity', 'url')
+        if info.has_option('Activity', 'repository_url'):
+            ET.SubElement(root, 'url', type='bugtracker').text = \
+                info.get('Activity', 'repository_url')
+        elif info.has_option('Activity', 'repository'):
+            ET.SubElement(root, 'url', type='bugtracker').text = \
+                info.get('Activity', 'repository')
+
+        path = os.path.join(prefix, 'share', 'metainfo',
+                            self.config.bundle_id + '.appdata.xml')
+        if not os.path.isdir(os.path.dirname(path)):
+            os.makedirs(os.path.dirname(path))
+        tree = ET.ElementTree(root)
+        tree.write(path, encoding='UTF-8')
 
 
-def cmd_dev(config, args):
+def cmd_check(config, options):
+    """Run tests for the activity"""
+
+    run_unit_test = True
+    run_integration_test = True
+
+    if options.choice == 'unit':
+        run_integration_test = False
+    if options.choice == 'integration':
+        run_unit_test = False
+
+    print("Running Tests")
+
+    test_path = os.path.join(config.source_dir, "tests")
+
+    if os.path.isdir(test_path):
+        unit_test_path = os.path.join(test_path, "unit")
+        integration_test_path = os.path.join(test_path, "integration")
+        sys.path.append(config.source_dir)
+
+        # Run Tests
+        if os.path.isdir(unit_test_path) and run_unit_test:
+            all_tests = unittest.defaultTestLoader.discover(unit_test_path)
+            unittest.TextTestRunner(verbosity=options.verbose).run(all_tests)
+        elif not run_unit_test:
+            print("Not running unit tests")
+        else:
+            print('No "unit" directory found.')
+
+        if os.path.isdir(integration_test_path) and run_integration_test:
+            all_tests = unittest.defaultTestLoader.discover(
+                integration_test_path)
+            unittest.TextTestRunner(verbosity=options.verbose).run(all_tests)
+        elif not run_integration_test:
+            print("Not running integration tests")
+        else:
+            print('No "integration" directory found.')
+
+        print("Finished testing")
+    else:
+        print("Error: No tests/ directory")
+
+
+def cmd_dev(config, options):
     """Setup for development"""
 
-    if args:
-        print 'ERROR - Wrong argument.'
-        print 'Usage: %prog dev'
-        exit (1)
-
-    bundle_path = os.path.expanduser('~/Activities')
+    bundle_path = env.get_user_activities_path()
     if not os.path.isdir(bundle_path):
         os.mkdir(bundle_path)
     bundle_path = os.path.join(bundle_path, config.bundle_root_dir)
@@ -285,66 +470,54 @@ def cmd_dev(config, args):
         os.symlink(config.source_dir, bundle_path)
     except OSError:
         if os.path.islink(bundle_path):
-            print 'ERROR - The bundle has been already setup for development.'
+            print('ERROR - The bundle has been already setup for development.')
         else:
-            print 'ERROR - A bundle with the same name is already installed.'
+            print('ERROR - A bundle with the same name is already installed.')
 
 
-def cmd_dist_xo(config, args):
+def cmd_dist_xo(config, options):
     """Create a xo bundle package"""
+    no_fail = False
+    if options is not None:
+        no_fail = options.no_fail
 
-    if args:
-        print 'ERROR - Wrong argument.'
-        print 'Usage: %prog dist_xo'
-        exit (1)
-
-    packager = XOPackager(Builder(config))
+    packager = XOPackager(Builder(config, no_fail))
     packager.package()
 
 
-def cmd_fix_manifest(config, args):
+def cmd_fix_manifest(config, options):
     '''Add missing files to the manifest (OBSOLETE)'''
 
-    print 'WARNING: The fix_manifest command is obsolete.'
-    print '         The MANIFEST file is no longer used in bundles,'
-    print '         please remove it.'
+    print('WARNING: The fix_manifest command is obsolete.')
+    print('         The MANIFEST file is no longer used in bundles,')
+    print('         please remove it.')
 
 
-def cmd_dist_source(config, args):
+def cmd_dist_source(config, options):
     """Create a tar source package"""
-
-    if args:
-        print 'ERROR - Wrong argument.'
-        print 'Usage: %prog dist_source'
-        exit (1)
 
     packager = SourcePackager(config)
     packager.package()
 
 
-def cmd_install(config, args):
+def cmd_install(config, options):
     """Install the activity in the system"""
 
-    parser = OptionParser(usage='usage: %prog install [options]')
-    parser.add_option('--prefix', dest='prefix', default=sys.prefix,
-                      help='Prefix to install files to')
-    (suboptions, subargs) = parser.parse_args(args)
-    if subargs:
-        print 'ERROR - Wrong argument.'
-        parser.print_help()
-        exit (1)
-
     installer = Installer(Builder(config))
-    installer.install(suboptions.prefix)
+    installer.install(
+        options.prefix,
+        options.install_mime,
+        options.install_desktop_file)
 
 
-def cmd_genpot(config, args):
+def _po_escape(string):
+    return re.sub('([\\\\"])', '\\\\\\1', string)
+
+
+def cmd_genpot(config, options):
     """Generate the gettext pot file"""
 
-    if args:
-        print 'ERROR - Wrong argument.'
-        print 'Usage: %prog genpot'
-        exit (1)
+    os.chdir(config.source_dir)
 
     po_path = os.path.join(config.source_dir, 'po')
     if not os.path.isdir(po_path):
@@ -357,6 +530,7 @@ def cmd_genpot(config, args):
                 file_path = os.path.relpath(os.path.join(root, file_name),
                                             config.source_dir)
                 python_files.append(file_path)
+    python_files.sort()
 
     # First write out a stub .pot file containing just the translated
     # activity name, then have xgettext merge the rest of the
@@ -364,62 +538,101 @@ def cmd_genpot(config, args):
     # to the end of the .pot file afterwards, because that might
     # create a duplicate msgid.)
     pot_file = os.path.join('po', '%s.pot' % config.bundle_name)
-    escaped_name = re.sub('([\\\\"])', '\\\\\\1', config.activity_name)
+    escaped_name = _po_escape(config.activity_name)
     f = open(pot_file, 'w')
     f.write('#: activity/activity.info:2\n')
     f.write('msgid "%s"\n' % escaped_name)
     f.write('msgstr ""\n')
+    if config.summary is not None:
+        escaped_summary = _po_escape(config.summary)
+        f.write('#: activity/activity.info:3\n')
+        f.write('msgid "%s"\n' % escaped_summary)
+        f.write('msgstr ""\n')
+
+    if config.description is not None:
+        parser = HTMLParser()
+        strings = []
+        parser.handle_data = strings.append
+        parser.feed(config.description)
+
+        for s in strings:
+            s = s.strip()
+            if s:
+                f.write('#: activity/activity.info:4\n')
+                f.write('msgid "%s"\n' % _po_escape(s))
+                f.write('msgstr ""\n')
     f.close()
 
     args = ['xgettext', '--join-existing', '--language=Python',
-        '--keyword=_', '--add-comments=TRANS:', '--output=%s' % pot_file]
+            '--keyword=_', '--add-comments=TRANS:',
+            '--output=%s' % pot_file]
+    if six.PY3:
+        args.insert(5, '--from-code=UTF-8')
 
     args += python_files
     retcode = subprocess.call(args)
     if retcode:
-        print 'ERROR - xgettext failed with return code %i.' % retcode
-        exit (1)
+        print('ERROR - xgettext failed with return code %i.' % retcode)
 
 
-def cmd_build(config, args):
+def cmd_build(config, options):
     """Build generated files"""
-
-    if args:
-        print 'ERROR - Wrong argument.'
-        print 'Usage: %prog build'
-        exit (1)
 
     builder = Builder(config)
     builder.build()
 
 
-def print_commands():
-    print 'Available commands:\n'
+def start():
+    parser = argparse.ArgumentParser(prog='./setup.py')
+    subparsers = parser.add_subparsers(
+        dest="command", help="Options for %(prog)s")
 
-    for name, func in globals().items():
-        if name.startswith('cmd_'):
-            print '%-20s %s' % (name.replace('cmd_', ''), func.__doc__)
+    install_parser = subparsers.add_parser(
+        "install", help="Install the activity in the system")
+    install_parser.add_argument(
+        "--prefix", dest="prefix", default=sys.prefix,
+        help="Path for installing")
+    install_parser.add_argument(
+        "--skip-install-mime", dest="install_mime",
+        action="store_false", default=True,
+        help="Skip the installation of custom mime types in the system")
+    install_parser.add_argument(
+        "--skip-install-desktop-file", dest="install_desktop_file",
+        action="store_false", default=True,
+        help="Skip the installation of desktop file in the system")
 
-    print '\n(Type "./setup.py <command> --help" for help about a ' \
-          'particular command\'s options.'
+    check_parser = subparsers.add_parser(
+        "check", help="Run tests for the activity")
+    check_parser.add_argument("choice", nargs='?',
+                              choices=['unit', 'integration'],
+                              help="run unit/integration test")
+    check_parser.add_argument("--verbosity", "-v", dest="verbose",
+                              type=int, choices=list(range(0, 3)),
+                              default=1, nargs='?',
+                              help="verbosity for the unit tests")
 
+    dist_parser = subparsers.add_parser("dist_xo",
+                                        help="Create a xo bundle package")
+    dist_parser.add_argument(
+        "--no-fail", dest="no_fail", action="store_true", default=False,
+        help="continue past failure when building xo file")
 
-def start(bundle_name=None):
-    if bundle_name:
-        logging.warn('bundle_name deprecated, now comes from activity.info')
+    subparsers.add_parser("dist_source", help="Create a tar source package")
+    subparsers.add_parser("build", help="Build generated files")
+    subparsers.add_parser(
+        "fix_manifest", help="Add missing files to the manifest (OBSOLETE)")
+    subparsers.add_parser("genpot", help="Generate the gettext pot file")
+    subparsers.add_parser("dev", help="Setup for development")
 
-    parser = OptionParser(usage='[action] [options]')
-    parser.disable_interspersed_args()
-    (options_, args) = parser.parse_args()
+    options = parser.parse_args()
 
-    config = Config()
+    source_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
+    config = Config(source_dir)
 
     try:
-        globals()['cmd_' + args[0]](config, args[1:])
+        globals()['cmd_' + options.command](config, options)
     except (KeyError, IndexError):
-        print 'ERROR - Wrong command or argument.'
-        print_commands()
-        exit (1)
+        parser.print_help()
 
 
 if __name__ == '__main__':
