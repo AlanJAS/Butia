@@ -1,5 +1,6 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
+#
 # Andrés Aguirre Dorelo <aaguirre@fing.edu.uy>
 # Rafael Carlos Cordano Ottati <rafael.cordano@gmail.com>
 # Lucía Carozzi <lucia.carozzi@gmail.com>
@@ -107,8 +108,8 @@ class Events:
         self._window.resize(int(width), int(height))
 
         if self._debug:
-            print "width:%s" % width
-            print self._window.get_size_request()
+            print("width:%s" % width)
+            print(self._window.get_size_request())
 
 
     def show_line(self, active):
@@ -125,7 +126,7 @@ class Events:
         self._window.modify_bg(gtk.STATE_NORMAL, color)
 
         if self._debug:
-            print color_name.get_number_name()
+            print(color_name.get_number_name())
 
 
     '''        
@@ -231,7 +232,7 @@ class Events:
 
         SendKey.send_special_key("xe_ctrl c")
         if self._debug:
-            print "copy event called"
+            print("copy event called")
 
 
     def paste_event(self):
@@ -239,7 +240,7 @@ class Events:
         SendKey.send_special_key("xe_ctrl v")
 
         if self._debug:
-            print "paste event called"
+            print("paste event called")
 
 
     def _allow_event(self):
@@ -272,7 +273,7 @@ class Events:
                     SendKey.send_key(key)
 
             if self._debug:
-                print "Simulate Key: " + text
+                print("Simulate Key: " + text)
 
 
     def browser(self,url):
@@ -287,7 +288,7 @@ class Events:
       
         self._pids[program].append(pid)
 
-        print pid
+        print(pid)
 
 
     def _remove_pid(self, program):
@@ -338,7 +339,7 @@ class Events:
 
 
             if self._debug:
-                print "Retrieving executables list"
+                print("Retrieving executables list")
 
             found = False
             i = 0
@@ -348,12 +349,12 @@ class Events:
                 i += 1
 
                 if self._debug:
-                    print "Processing " + f
+                    print("Processing " + f)
 
                 if re.search(program,f):
                     found = True
                     if self._debug:
-                        print f + " found"
+                        print(f + " found")
             
             if found:
                 self._p = subprocess.Popen(f, stderr=subprocess.STDOUT, shell=True,preexec_fn=os.setsid)
@@ -371,7 +372,7 @@ class Events:
                 os.killpg(os.getpgid(self._pids[program][0]), signal.SIGTERM)
                 self._remove_pid(program)
             except OSError:
-                print "Error: The pid does not exists."
+                print("Error: The pid does not exists.")
 
     '''
     def save_value(self, key, val):

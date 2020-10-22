@@ -26,9 +26,14 @@
 import os
 import sys
 import time
-import gconf
 import types
 import gtk.gdk
+
+try:
+    import gconf
+    HAS_GCONF = True
+except ImportError:
+    HAS_GCONF = False
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
@@ -897,7 +902,7 @@ class Xevents(Plugin):
     def init_gconf(self):
         try:
             self.gconf_client = gconf.client_get_default()
-        except Exception, err:
+        except Exception as err:
             debug_output(_('ERROR: cannot init GCONF client: %s') % err)
             self.gconf_client = None
 
