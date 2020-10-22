@@ -23,7 +23,7 @@
 
 
 #versions to checkout before build
-TURTLEBLOCKS_VERSION = a2a4e1d50671677e72a9ae715a0a123ee3717ac6
+TURTLEBLOCKS_VERSION = e2729c79de6fb07cb04017534a90b8d23dbc85e2
 EXTRAS_VERSION = fbd88b928d1c9da21183d7e730073c05bd2f430d
 NXT_VERSION = bfa27b7d0f509c987f7fd6201de83934f245faa9
 WEDO_VERSION = ad432528d5883a39e6c9dcfb5e5dc9a353fa5761
@@ -83,7 +83,7 @@ first:
 ################################ Dependencies ##################################
 
 install-dependencies:
-	sudo apt-get install libglib2.0-dev libgstreamer0.10-dev debhelper python-gtk2 
+	sudo apt-get install debhelper python-gtk2 gettext
 
 #################### Initialization of "especific" submodules ##################
 
@@ -173,7 +173,7 @@ apply_localization: sourceGIT mktmpfolder
 	(cd turtle-extras && ./merge.py turtlebots $(BUILDDIR))
 	#cp turtle-extras/taextras.py $(BUILDDIR)
 	# fix localization (compile .po)
-	(cd $(BUILDDIR) && python setup.py build)
+	(cd $(BUILDDIR) && python3 setup.py build)
 
 apply_hard_plugins: apply_localization sourceGIT
 	cp -rLf ardrone               $(BUILDDIR)/plugins/
@@ -248,15 +248,15 @@ xo:
 	(cd $(TMPBUILDDIR) && git init)
 	(cd $(TMPBUILDDIR) && git add *)
 	(cd $(TMPBUILDDIR) && git commit -m 'all files')
-	(cd $(TMPBUILDDIR) && python setup.py build)
-	(cd $(TMPBUILDDIR) && python setup.py dist_xo)
+	(cd $(TMPBUILDDIR) && python3 setup.py build)
+	(cd $(TMPBUILDDIR) && python3 setup.py dist_xo)
 	cp $(TMPBUILDDIR)/dist/*.xo .
 	$(MAKE) BUILDDIR=$(TMPBUILDDIR) clean-builddir
 
 dev: apply_sym_plugins
 	rm -rf ~/Activities/TurtleBots.activity
 	mkdir -p ~/Activities
-	(cd $(BUILDDIR) && python setup.py dev)
+	(cd $(BUILDDIR) && python3 setup.py dev)
 
 
 ################################## Plugins #####################################
