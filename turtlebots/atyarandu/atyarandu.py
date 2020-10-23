@@ -1,8 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import urllib
-import time
 import threading
 import sys
 sys.path.insert(0, os.path.abspath('./plugins/butia'))
@@ -12,11 +11,9 @@ from plugins.plugin import Plugin
 from TurtleArt.talogo import logoerror
 from TurtleArt.tapalette import make_palette
 from TurtleArt.tapalette import palette_name_to_index
-from TurtleArt.tapalette import palette_blocks
 from TurtleArt.tapalette import special_block_colors
 from TurtleArt.taprimitive import Primitive , ArgSlot, ConstantArg
 from TurtleArt.tatype import TYPE_STRING, TYPE_FLOAT, TYPE_NUMBER
-from TurtleArt.tautils import debug_output
 from TurtleArt.tawindow import block_names
 from pybot import pybot_client
 
@@ -116,7 +113,6 @@ class Atyarandu(Plugin):
                 ocultar = False
             else:
                 ocultar = True
-                n = m
             x = str(m+1)
             nombloque = 'relay' + x + 'agh'
             RELAY_PORT[nombloque] = 0
@@ -245,7 +241,6 @@ class Atyarandu(Plugin):
         #valor = self.prim_engrec()
         genera = 68
         valor = 60
-        cont_relay = 0
         for blk in self._parent.block_list.list:
             if blk.name.endswith('agh'):
                 #blk.name = 'relay2agh'
@@ -295,7 +290,7 @@ class Atyarandu(Plugin):
                         if(blk.type == 'proto'):
                             regenerar_paleta = True
                             #print 'tengo un proto', blk.name
-                            if (RELAY_PORT[blk.name] <> 0) | (blk.name == 'relay1agh'):
+                            if not(RELAY_PORT[blk.name] == 0) or (blk.name == 'relay1agh'):
                                 #if cant_modulos_conectados == 0:
                                     #if len(modulos_nuevos) == 0:
                                         #cant_modulos_conectados = -1
