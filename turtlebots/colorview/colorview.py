@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#! /usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 import gtk
 import logging
@@ -23,7 +24,6 @@ try:
     import pygame
     import pygame.camera
 except ImportError:
-    print _('Error importing Pygame. This plugin requires Pygame 1.9')
     pygame = None
 
 COLOR_PRESENT = ["#00FF00","#008000"]
@@ -96,9 +96,9 @@ class Colorview(Plugin):
                 self.cam_present = True
                 self.cam_init = True
             except:
-                print _('Error on initialization of the camera')
+                print(_('Error on initialization of the camera'))
         else:
-            print _('No camera was found')
+            print(_('No camera was found'))
 
     def set_camera_flags(self):
         if self.cam_present:
@@ -120,7 +120,7 @@ class Colorview(Plugin):
                 self.cam.stop()
                 self.cam_on = False
             except:
-                print _('Error stopping camera')
+                print(_('Error stopping camera'))
 
     def start_camera(self):
         if not(self.cam_init and self.cam_present):
@@ -132,7 +132,7 @@ class Colorview(Plugin):
                 self.set_camera_flags()
                 self.cam_on = True
             except:
-                print _('Error starting camera')
+                print(_('Error starting camera'))
 
     def setup(self):
 
