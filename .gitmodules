@@ -9,8 +9,7 @@
 	url = https://github.com/AlanJAS/nxt.git
 [submodule "turtlebots/WeDoMore"]
 	path = turtlebots/WeDoMore
-	url = git://github.com/sugarlabs/WeDoMore.git
-	ignore = untracked
+	url = https://github.com/AlanJAS/WeDoMore.git
 [submodule "turtlebots/arduino"]
 	path = turtlebots/arduino
 	url = https://github.com/AlanJAS/arduino.git
