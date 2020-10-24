@@ -23,7 +23,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import sys
-import imp
+import importlib.machinery
 import select
 import socket
 import usb4butia
@@ -38,7 +38,8 @@ class Server():
     def __init__(self, debug=False, chotox=False):
         self.debug = debug
         self.run = True
-        self.comms = imp.load_source('server_functions', 'server_functions.py')
+        load = importlib.machinery.SourceFileLoader('server_functions', 'server_functions.py')
+        self.comms = load.load_module()
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind(("", PYBOT_PORT))

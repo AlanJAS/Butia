@@ -24,7 +24,7 @@
 
 
 import os
-import imp
+import importlib.machinery
 import inspect
 import com_usb
 from baseboard import Baseboard
@@ -129,7 +129,8 @@ class USB4Butia(ButiaFunctions):
         self._debug('Loading driver %s...' % driver)
         abs_path = os.path.abspath(os.path.join(path, driver + '.py'))
         try:
-            self._drivers_loaded[driver] = imp.load_source(driver, abs_path)
+            load = importlib.machinery.SourceFileLoader(driver, abs_path)
+            self._drivers_loaded[driver] = load.load_module()
         except:
             self._debug('ERROR:usb4butia:_get_driver cannot load %s' % driver, abs_path)
         
