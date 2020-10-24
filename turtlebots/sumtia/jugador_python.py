@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-#VERSION 1.0
+#!/usr/bin/python3
+# VERSION 2.0
 
 import apiSumoUY
 import math
@@ -115,7 +115,7 @@ try:
 	err = api.conectarse()	
 except:
 	error = True
-	print "Error trying to connect..."	
+	print("Error trying to connect...")
 	
 			
 if err == -1:
@@ -167,7 +167,7 @@ while not error and misPuntos < 3 and susPuntos < 3:
 			setCmds(x0, y0, r0, xf, yf)
 	except:
 		error = True
-		print "Error en el jugador"		
+		print("Error en el jugador")
 
 
 api.liberarRecursos()

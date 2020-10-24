@@ -1,7 +1,7 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Version 1.0
+# Version 2.0
 # This implement API for sumo.uy
 #
 # Copyright (C) 2008 Guillermo Reisch (greisch@fing.edu.uy)
@@ -81,10 +81,10 @@ class apiSumoUY:
         self.ip_server = ip_server
         self.port_server = port_server
         
-        print "SumoAPI: Puertos Seleccionados:"
-        print self.port_cliente
-        print self.ip_server
-        print self.port_server    
+        print("SumoAPI: Puertos Seleccionados:")
+        print(self.port_cliente)
+        print(self.ip_server)
+        print(self.port_server)  
     
     def conectarse(self):
         try:
@@ -92,20 +92,20 @@ class apiSumoUY:
             self.cliente.bind((self.ip_server, self.port_cliente)) #puerto por donde voy a mandar mis comandos
             self.cliente.settimeout(1)
         except:
-            print "SumoAPI: Error trying to connect..."
+            print("SumoAPI: Error trying to connect...")
         
     def liberarRecursos(self):
         try:
             self.cliente.close() 
         except:
-            print "SumoAPI: Closing connection error..."
+            print("SumoAPI: Closing connection error...")
         
     def enviarAck(self):
         msg = self.OPE_ACK + '*'
         try:
             self.cliente.sendto(msg.encode("ascii"),(self.ip_server, self.port_server))
         except:
-            print "SumoAPI: Sending Ack error..."  
+            print("SumoAPI: Sending Ack error...")
         
     def enviarVelocidades(self, vel_izq = 0, vel_der = 0):
         msg = "speed*" + str(int(vel_izq)) + "*" + str(int(vel_der)) + "*" 
@@ -113,7 +113,7 @@ class apiSumoUY:
             self.cliente.sendto(msg,(self.ip_server, self.port_server))
             return "ok"    
         except:   
-            print "SumoAPI: Sending speed error..."
+            print("SumoAPI: Sending speed error...")
         
     def getInformacion(self):
         try:
@@ -146,7 +146,7 @@ class apiSumoUY:
             mensaje = None
             return 0
         except:
-            print "SumoAPI: Getting information error..."
+            print("SumoAPI: Getting information error...")
             return -1        
         
     #@return coordenada X de luchador

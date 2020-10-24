@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # Copyright (c) 2011 Butiá Team butia@fing.edu.uy 
@@ -19,6 +19,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath('./plugins/sumtia'))
 
 import apiSumoUY
 import math

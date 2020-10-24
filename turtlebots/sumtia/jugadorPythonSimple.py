@@ -1,3 +1,6 @@
+#! /usr/bin/python3
+# -*- coding: utf-8 -*-
+
 import apiSumoUY
 
 error = False
@@ -8,7 +11,7 @@ try:
 	err = api.conectarse()	
 except:
 	error = True
-	print "Error trying to connect..."	
+	print("Error trying to connect...")
 	
 			
 if err == -1:
@@ -18,6 +21,6 @@ api.enviarVelocidades(1,-1)
 
 while not error:
 	api.getInformacion()
-	print "X: " + str(api.getCoorX())
-	print "Rot: " + str(api.getRot())
-	print "Ang to C: " + str(api.getAngleToCenter())
+	print("X: " + str(api.getCoorX()))
+	print("Rot: " + str(api.getRot()))
+	print("Ang to C: " + str(api.getAngleToCenter()))
