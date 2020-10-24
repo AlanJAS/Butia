@@ -33,7 +33,9 @@ from Xlib.ext import xtest
 from Xlib.ext import record
 from Xlib.ext import shape
 from Xlib.ext import xinerama
-import gtk
+
+from gi.repository import Gtk
+
 import os
 import signal
 import subprocess

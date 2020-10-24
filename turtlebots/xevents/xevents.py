@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Andrés Aguirre Dorelo <aaguirre@fing.edu.uy>
 # Rafael Carlos Cordano Ottati <rafael.cordano@gmail.com>
@@ -904,11 +904,11 @@ class Xevents(Plugin):
         try:
             self.gconf_client = gconf.client_get_default()
         except Exception as err:
-            print(_('ERROR: cannot init GCONF client: %s') % err)
             self.gconf_client = None
 
     def get_gconf(self, key):
-        casts = {gconf.VALUE_BOOL:   gconf.Value.get_bool,
+        if HAS_GCONF:
+            casts = {gconf.VALUE_BOOL:   gconf.Value.get_bool,
                gconf.VALUE_INT:    gconf.Value.get_int,
                gconf.VALUE_FLOAT:  gconf.Value.get_float,
                gconf.VALUE_STRING: gconf.Value.get_string}
@@ -923,8 +923,8 @@ class Xevents(Plugin):
         return res
 
     def set_gconf(self, key, value):
-
-        casts = {types.BooleanType: gconf.Client.set_bool,
+        if HAS_GCONF:
+            casts = {types.BooleanType: gconf.Client.set_bool,
               types.IntType:     gconf.Client.set_int,
               types.FloatType:   gconf.Client.set_float,
               types.StringType:  gconf.Client.set_string}
