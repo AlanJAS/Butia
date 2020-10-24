@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 # 
 # Plugin Turtlebots para manejar el ArDrone Parrot.
@@ -19,10 +19,15 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+import os
+import sys
 import time
 import threading
 import re
 import subprocess
+
+sys.path.insert(0, os.path.abspath('./plugins/ardrone'))
+
 import ardroneAPI
 
 from TurtleArt.tapalette import special_block_colors
@@ -47,7 +52,7 @@ class Ardrone(Plugin):
     def __init__(self, parent):
         Plugin.__init__(self)
         self.tw = parent
-        power_manager_off(True)
+        #power_manager_off(True)
         
         self.apiArDrone = ardroneAPI.ardroneAPI()
         

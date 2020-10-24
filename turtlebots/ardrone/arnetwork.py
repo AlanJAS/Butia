@@ -57,7 +57,7 @@ class ARDroneNetworkProcess(multiprocessing.Process):
         try:
             nav_socket.sendto("\x01\x00\x00\x00", (ARDRONE_DIRECCION, ARDRONE_NAVDATA_PORT))
         except:
-            print "arnetwork: error al inicializar puerto navdata"
+            print("arnetwork: error al inicializar puerto navdata")
             
         stopping = False
         while not stopping:
