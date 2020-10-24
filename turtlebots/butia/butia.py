@@ -1104,7 +1104,7 @@ class Butia(Plugin):
             try:
                 debug_output(_('Creating PyBot server'))
                 self.bobot = subprocess.Popen(
-				['python', 'pybot_server.py'],
+				['python3', 'pybot_server.py'],
 				cwd=os_path.join(os_path.dirname(__file__),'pybot'))
                 time.sleep(1)
                 self.butia.reconnect()
