@@ -1,3 +1,6 @@
+#! /usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import os
 
 from gettext import gettext as _
@@ -8,12 +11,6 @@ import sys
 sys.path.insert(0, os.path.abspath('./plugins/butia'))
 
 from pybot import pybot_client
-
-import time
-import threading
-import re
-import subprocess
-import gconf
 
 from TurtleArt.tapalette import special_block_colors
 from TurtleArt.tapalette import palette_name_to_index
