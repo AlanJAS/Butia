@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # Fischer abstraction
@@ -55,7 +55,7 @@ class FischerRobot():
 
     def _debug(self, message, err=''):
         if self.debug:
-            print message, err
+            print(message, err)
 
     def open_ft(self):
         """

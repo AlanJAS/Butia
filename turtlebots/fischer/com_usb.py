@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # USB comunication with Fischer
@@ -45,7 +45,7 @@ class usb_device():
 
     def _debug(self, message, err=''):
         if self.debug:
-            print message, err
+            print(message, err)
 
     def open_device(self):
         """
@@ -55,7 +55,7 @@ class usb_device():
             if self.dev.is_kernel_driver_active(FISCHER_LT_INTERFACE):
                 self.dev.detach_kernel_driver(FISCHER_LT_INTERFACE)
             self.dev.set_configuration(FISCHER_LT_CONFIGURATION)
-        except usb.USBError, err:
+        except usb.USBError as err:
             self._debug('ERROR:com_usb:open_device', err)
 
     def close_device(self):
@@ -64,7 +64,7 @@ class usb_device():
         """
         try:
             self.dev.__del__()
-        except Exception, err:
+        except Exception as err:
             self._debug('ERROR:com_usb:close_device', err)
         self.dev = None
 
@@ -74,7 +74,7 @@ class usb_device():
         """
         try:
             return self.dev.read(IN_ENDPOINT, size, TIMEOUT)
-        except Exception, err:
+        except Exception as err:
             self._debug('ERROR:com_usb:read', err)
  
     def write(self, data):
@@ -83,7 +83,7 @@ class usb_device():
         """
         try:
             return self.dev.write(OUT_ENDPOINT, data, TIMEOUT)
-        except Exception, err:
+        except Exception as err:
             self._debug('ERROR:com_usb:write', err)
 
     def get_address(self):
@@ -104,7 +104,7 @@ class usb_device():
             copy = usb.util.get_string(self.dev, 2).encode('ascii')
             sn = usb.util.get_string(self.dev, 3).encode('ascii')
             return [names, copy, sn]
-        except Exception, err:
+        except Exception as err:
             self._debug('ERROR:com_usb:get_info', err)
 
 def find():
