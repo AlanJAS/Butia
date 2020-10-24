@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright (c) 2011 Alan Aguiar, <alanjas@hotmail.com>
 # Copyright (c) 2011 Aylen Ricca, <ar18_90@hotmail.com>
@@ -20,7 +20,7 @@
 
 import gtk
 import logging
-from color_name import get_color_name
+from .color_name import get_color_name
 from gettext import gettext as _
 from plugins.plugin import Plugin
 from TurtleArt.tapalette import make_palette
@@ -38,7 +38,6 @@ try:
     import pygame
     import pygame.camera
 except ImportError:
-    print _('Error importing Pygame. This plugin require Pygame 1.9')
     pygame = None
 
 COLOR_PRESENT = ["#00FF00","#008000"]
@@ -90,9 +89,9 @@ class Followme(Plugin):
                 self.cam_present = True
                 self.cam_init = True
             except:
-                print _('Error on initialization of the camera')
+                print(_('Error on initialization of the camera'))
         else:
-            print _('No camera was found')
+            print(_('No camera was found'))
 
     def set_camera_flags(self):
         if self.cam_present:
@@ -114,7 +113,7 @@ class Followme(Plugin):
                 self.cam.stop()
                 self.cam_on = False
             except:
-                print _('Error stopping camera')
+                print (('Error stopping camera'))
 
     def start_camera(self):
         if not(self.cam_init and self.cam_present):
@@ -126,7 +125,7 @@ class Followme(Plugin):
                 self.set_camera_flags()
                 self.cam_on = True
             except:
-                print _('Error starting camera')
+                print(_('Error starting camera'))
 
     def get_mask(self):
         try:
@@ -135,7 +134,7 @@ class Followme(Plugin):
                         (self.threshold[0],self.threshold[1], self.threshold[2]), (0,0,0), 2)
             self.mask = pygame.mask.from_threshold(self.capture_aux, self.colorc, self.threshold)
         except:
-            print _('Error in get mask')
+            print(_('Error in get mask'))
 
     def luminance(self):
         self.start_camera()
