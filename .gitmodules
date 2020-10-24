@@ -18,7 +18,7 @@
 	url = git://github.com/walac/pyusb.git
 [submodule "turtlebots/rodi"]
 	path = turtlebots/rodi
-	url = git://github.com/rodibot/rodi-plugin-turtlebots.git
+	url = https://github.com/AlanJAS/rodi-plugin-turtlebots.git
 [submodule "turtlebots/mark"]
 	path = turtlebots/mark
 	url = https://github.com/AlanJAS/mark.git
