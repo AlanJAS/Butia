@@ -44,9 +44,7 @@ install:
 	dh_installmenu
 	dh_installmime
 	dh_installmodules
-	dh_python2 /usr/share/sugar/activities/TurtleBots.activity
-	# en debhelper viejos
-	#dh_pycentral /usr/share/sugar/activities/TurtleBots.activity
+	dh_python3 /usr/share/sugar/activities/TurtleBots.activity
 	dh_installlogcheck
 	dh_installlogrotate
 	dh_installpam
@@ -56,7 +54,7 @@ install:
 	dh_installxfonts
 	dh_bugfiles
 	dh_lintian
-	dh_gconf
+	dh_installgsettings
 	dh_icons
 	dh_perl
 	dh_usrlocal

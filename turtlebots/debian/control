@@ -2,7 +2,7 @@ Source: turtlebots
 Section: main/x11
 Priority: optional
 Maintainer: Alan Aguiar <alanjas@hotmail.com>
-Build-Depends: debhelper (>= 7.4.15), python (>= 2.7.3)
+Build-Depends: debhelper (>= 10), python3 (>= 3.3), dh-python
 Standards-Version: 3.9.3
 Homepage: http://www.fing.edu.uy/inco/proyectos/butia
 #Vcs-Git: git://git.debian.org/collab-maint/turtlebots.git
@@ -10,7 +10,7 @@ Homepage: http://www.fing.edu.uy/inco/proyectos/butia
 
 Package: turtlebots
 Architecture: all
-Depends: python-gconf, python-gtk2, ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
+Depends: python-gi, python3-numpy, ${misc:Depends}, ${python3:Depends}
 Conflicts: turtleart (<= 98-1)
 Recommends: python-pycurl, python-bluez, python-pygame (>= 1.9.1)
 Replaces: sugar-activity-turtlebots, sugar-default-activities
