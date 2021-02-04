@@ -10,7 +10,7 @@ Homepage: http://www.fing.edu.uy/inco/proyectos/butia
 
 Package: turtlebots
 Architecture: all
-Depends: python-gi, python3-numpy, ${misc:Depends}, ${python3:Depends}
+Depends: python3-gi, python3-numpy, ${misc:Depends}, ${python3:Depends}
 Conflicts: turtleart (<= 98-1)
 Recommends: python-pycurl, python-bluez, python-pygame (>= 1.9.1)
 Replaces: sugar-activity-turtlebots, sugar-default-activities
