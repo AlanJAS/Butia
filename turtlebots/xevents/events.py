@@ -35,6 +35,7 @@ from Xlib.ext import shape
 from Xlib.ext import xinerama
 
 from gi.repository import Gtk
+from gi.repository import Gdk
 
 import os
 import signal
@@ -75,15 +76,17 @@ class Events:
 
         self._screen = self._display.screen()
         self._x = self._screen.root
-        self._window = gtk.Window(gtk.WINDOW_POPUP)
+        #self._window = Gtk.Window(Gtk.WINDOW_POPUP)
+        self._window = Gtk.Window()
+        
         self._window.set_keep_above(True)
         self._window.set_opacity(1)
-        self._window.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#234fdb"))
+        #self._window.modify_bg(Gtk.STATE_NORMAL, Gtk.gdk.color_parse("#234fdb"))
         self._window.set_decorated(False)
-        self._window.add_events(gtk.gdk.KEY_PRESS_MASK |
-                                gtk.gdk.POINTER_MOTION_MASK |
-                                gtk.gdk.BUTTON_PRESS_MASK |
-                                gtk.gdk.SCROLL_MASK)
+        self._window.add_events(Gdk.EventMask.KEY_PRESS_MASK |
+                                Gdk.EventMask.POINTER_MOTION_MASK |
+                                Gdk.EventMask.BUTTON_PRESS_MASK |
+                                Gdk.EventMask.SCROLL_MASK)
 
         self._last_call_time = 0
         #Current open programs
@@ -165,9 +168,9 @@ class Events:
 
         self._x.warp_pointer(x, y)
         if stopped != 1:
-            gtk.gdk.flush()
+            Gdk.flush()
             self._window.move(x, y)
-            gtk.gdk.flush()
+            Gdk.flush()
             self._window.set_keep_above(True)
         self._display.sync()
 
@@ -206,9 +209,9 @@ class Events:
         self._window.set_keep_below(True)
 
         # press button 1, for middle mouse button use 2, for opposite button use 3
-        gtk.gdk.flush()
+        Gdk.flush()
         self._window.hide()
-        gtk.gdk.flush()
+        Gdk.flush()
 
         self._click(button)
 
@@ -222,9 +225,9 @@ class Events:
         self._window.set_keep_below(True)
 
         # press button 1, for middle mouse button use 2, for opposite button use 3
-        gtk.gdk.flush()
+        Gdk.flush()
         self._window.hide()
-        gtk.gdk.flush()
+        Gdk.flush()
 
         self._click(button)
         self._click(button)
