@@ -1,6 +1,6 @@
 [submodule "turtlebots/mainline"]
 	path = turtlebots/mainline
-	url = git://github.com/sugarlabs/activity-turtleart-gtk2.git
+	url = https://github.com/AlanJAS/turtleart.git
 [submodule "turtlebots/turtle-extras"]
 	path = turtlebots/turtle-extras
 	url = https://github.com/AlanJAS/activity-turtleart-extras.git
