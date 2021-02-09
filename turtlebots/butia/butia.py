@@ -25,14 +25,11 @@ import re
 import subprocess
 import socket
 import struct
-
-try:
-    import gconf
-    HAS_GCONF = True
-except ImportError:
-    HAS_GCONF = False
+import sys
 
 from os import path as os_path
+sys.path.insert(0, os_path.abspath('./plugins/butia'))
+
 from pybot import pybot_client
 
 from TurtleArt.tapalette import special_block_colors
