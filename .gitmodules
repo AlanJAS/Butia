@@ -15,7 +15,7 @@
 	url = https://github.com/AlanJAS/arduino.git
 [submodule "turtlebots/pyusb"]
 	path = turtlebots/pyusb
-	url = git://github.com/walac/pyusb.git
+	url = https://github.com/pyusb/pyusb.git
 [submodule "turtlebots/rodi"]
 	path = turtlebots/rodi
 	url = https://github.com/AlanJAS/rodi-plugin-turtlebots.git
