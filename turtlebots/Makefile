@@ -23,7 +23,7 @@
 
 
 #versions to checkout before build
-TURTLEBLOCKS_VERSION = ec8a2f712915fda99cd8eb776c9f2361265a788e
+TURTLEBLOCKS_VERSION = 1bdbeb9c5a03dd55d30e50632a393d020a52973b
 EXTRAS_VERSION = fb0051e9b4d50bc87f06adcfb6250635a292b473
 NXT_VERSION = a5a638a0e4343634e9317abd34b89253c40fc8d2
 WEDO_VERSION = 55572fe52d3971ff333e4be7d0b96fbed4bae0c4
@@ -162,6 +162,8 @@ mktmpfolder:
 	rm -f  $(BUILDDIR)/turtleblocks
 	rm -f  $(BUILDDIR)/turtleblocks.desktop
 	rm -f  $(BUILDDIR)/setup.py
+	rm -f  $(BUILDDIR)/COPYING.G*
+	rm -f  $(BUILDDIR)/COPYING.L*
 	# patch the activity.info and add some icons (TurtleBlocks => TurtleBots)
 	cp -rLf stagin/activity $(BUILDDIR)/
 	cp -f stagin/turtlebots $(BUILDDIR)/
