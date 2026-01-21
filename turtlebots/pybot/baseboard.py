@@ -123,23 +123,12 @@ class Baseboard():
         Get the listi: the list of modules present in the board that can be
         opened (or pnp module opens)
         """
-        if (self.listi == {}) or force:
-            self._generate_listi()
-        return self.listi
-
-    def _generate_listi(self):
-        """
-        Generate the listi: the list of modules present in the board that can be
-        opened (or pnp module opens)
-        """
-        self.listi = {}
-        try:
-            s = self.get_user_modules_size()
-            for m in range(s):
-                self.listi[m] = self.get_user_module_line(m)
-        except:
+        if not self.listi or force:
             self.listi = {}
-            self._debug('ERROR:baseboard listi')
+            size = self.get_user_modules_size()
+            for i in range(size):
+                self.listi[i] = self.get_user_module_line(i)
+        return self.listi
 
     def set_hack_state(self, hack, state):
         if hack in self.hack_states:
