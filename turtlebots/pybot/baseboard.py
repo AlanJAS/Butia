@@ -63,6 +63,16 @@ class Baseboard():
         if self.debug:
             print(message, err)
 
+    def _send_command(self, command, packet_size=DEFAULT_PACKET_SIZE, payload=None, read_size=None):
+        packet = [ADMIN_HANDLER_SEND_COMMAND, packet_size, NULL_BYTE, command]
+        if payload:
+            packet.extend(payload)
+        self.dev.write(packet)
+        if read_size:
+            response = self.dev.read(read_size)
+            return response
+        return None
+
     def open_baseboard(self):
         """
         Open the baseboard
