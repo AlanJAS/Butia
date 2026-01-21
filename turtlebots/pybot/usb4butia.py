@@ -134,7 +134,7 @@ class USB4Butia(ButiaFunctions):
         except:
             self._debug('ERROR:usb4butia:_get_driver cannot load %s' % driver, abs_path)
         
-    def callModule(self, modulename, board_number, number, function, params = [], ret_type = int):
+    def callModule(self, modulename, board_number, number, function, params = []):
         """
         Call one function: function for module: modulename in board: board_name
         with handler: number (only if the module is pnp, else, the parameter is

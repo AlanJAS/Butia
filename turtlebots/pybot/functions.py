@@ -77,7 +77,7 @@ class ButiaFunctions:
         Send a raw packet to ax module
         """
         msg_s = [str(i) for i in msg]
-        return self.callModule('ax', str(board), '0', 'sendPacket', msg_s, ret_type=str)
+        return self.callModule('ax', str(board), '0', 'sendPacket', msg_s)
 
     def wheelMode(self, idMotor='0', board='0'):
         """
@@ -120,7 +120,7 @@ class ButiaFunctions:
         """
         Gets the battery level charge
         """
-        return self.callModule('butia', str(board), '0', 'getVolt', ret_type=float)
+        return self.callModule('butia', str(board), '0', 'getVolt')
 
     def getVersion(self, board='0'):
         """
@@ -164,19 +164,19 @@ class ButiaFunctions:
         """
         Gets the value of the resistance sensor connected in port
         """
-        return self.callModule('res', str(board), str(port), 'getValue', ret_type=float)
+        return self.callModule('res', str(board), str(port), 'getValue')
 
     def getVoltage(self, port, board='0'):
         """
         Gets the value of the voltage sensor connected in port
         """
-        return self.callModule('volt', str(board), str(port), 'getValue', ret_type=float)
+        return self.callModule('volt', str(board), str(port), 'getValue')
 
     def getTemperature(self, port, board='0'):
         """
         Gets the value of the temperature sensor connected in port
         """
-        return self.callModule('temp', str(board), str(port), 'getValue', ret_type=float)
+        return self.callModule('temp', str(board), str(port), 'getValue')
 
     ############################### Actuators calls ###############################
 
