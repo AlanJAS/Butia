@@ -50,19 +50,14 @@ PKT_CLOSEALL               = 0x05
 
 class Baseboard():
 
-    def __init__(self, dev, debug=False):
+    def __init__(self, dev):
         self.dev = dev
-        self.debug = debug
         self.listi = {}
         self.devices = {}
         self.openables_loaded = []
         self.hack_states = {}
         for i in range(1, 9):
             self.hack_states[i] = 1
-
-    def _debug(self, message, err=''):
-        if self.debug:
-            print(message, err)
 
     def _send_command(self, command, packet_size=PKT_DEFAULT, payload=None, read_size=None):
         packet = [ADMIN_HANDLER, packet_size, NULL_BYTE, command]
@@ -175,7 +170,6 @@ class Baseboard():
         w.append(CMD_GET_USER_MODULES_SIZE)
         self.dev.write(w)
         raw = self.dev.read(PKT_GET_USER_LINE )
-        self._debug('baseboard:get_user_modules_size', raw)
         return raw[4]
 
     def get_user_module_line(self, index):
@@ -187,7 +181,6 @@ class Baseboard():
         w.append(index)
         self.dev.write(w)
         raw = self.dev.read(PKT_GET_LINE_RESPONSE)
-        self._debug('baseboard:get_user_module_line', raw)
         c = raw[4:len(raw)]
         t = ''
         for e in c:
@@ -203,7 +196,6 @@ class Baseboard():
         w.append(CMD_GET_HANDLER_SIZE)
         self.dev.write(w)
         raw = self.dev.read(PKT_HANDLER_RESPONSE)
-        self._debug('baseboard:get_handler_size', raw)
         return raw[4]
 
     def get_handler_type(self, index):
@@ -215,7 +207,6 @@ class Baseboard():
         w.append(index)
         self.dev.write(w)
         raw = self.dev.read(PKT_HANDLER_RESPONSE)
-        self._debug('baseboard:get_handler_type', raw)
         return raw[4]
 
     def switch_to_bootloader(self):
@@ -242,6 +233,5 @@ class Baseboard():
         w.append(CMD_CLOSEALL )
         self.dev.write(w)
         raw = self.dev.read(PKT_CLOSEALL)
-        self._debug('baseboard:force_close_all', raw)
         return raw[4]
 
