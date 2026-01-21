@@ -32,14 +32,6 @@ class ButiaFunctions:
         module_list = self.getModulesList()
         return (module_name in module_list)
 
-    def loopBack(self, data, board='0'):
-        """
-        LoopBack command: send data to the board and get the result. If all is ok
-        the return must be exactly of the data parameter
-        """
-        msg = [str(data)]
-        return self.callModule('lback', str(board), '0', 'send', msg, ret_type=str)
-
     ############################## Movement calls ##############################
 
     def set2MotorSpeed(self, leftSense='0', leftSpeed='0', rightSense='0', rightSpeed='0', board='0'):
