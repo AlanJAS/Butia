@@ -166,22 +166,15 @@ class Baseboard():
         """
         Get the size of the list of user modules (listi)
         """
-        w = [ADMIN_HANDLER, PKT_DEFAULT, NULL_BYTE]
-        w.append(CMD_GET_USER_MODULES_SIZE)
-        self.dev.write(w)
-        raw = self.dev.read(PKT_GET_USER_LINE )
+        raw = self._send_command(CMD_GET_USER_MODULES_SIZE, read_size=PKT_GET_USER_LINE)
         return raw[4]
 
     def get_user_module_line(self, index):
         """
         Get the name of device with index: index (listi)
         """
-        w = [ADMIN_HANDLER, PKT_GET_USER_LINE , NULL_BYTE]
-        w.append(CMD_GET_USER_MODULE_LINE)
-        w.append(index)
-        self.dev.write(w)
-        raw = self.dev.read(PKT_GET_LINE_RESPONSE)
-        c = raw[4:len(raw)]
+        raw = self._send_command(CMD_GET_USER_MODULE_LINE, PKT_GET_USER_LINE, [index], PKT_GET_LINE_RESPONSE)
+        c = raw[4:]
         t = ''
         for e in c:
             if not(e == NULL_BYTE):
@@ -192,46 +185,31 @@ class Baseboard():
         """
         Get the number of handlers opened
         """
-        w = [ADMIN_HANDLER, PKT_DEFAULT, NULL_BYTE]
-        w.append(CMD_GET_HANDLER_SIZE)
-        self.dev.write(w)
-        raw = self.dev.read(PKT_HANDLER_RESPONSE)
+        raw = self._send_command(CMD_GET_HANDLER_SIZE, read_size=PKT_HANDLER_RESPONSE)
         return raw[4]
 
     def get_handler_type(self, index):
         """
         Get the type of the handler: index (return listi index)
         """
-        w = [ADMIN_HANDLER, PKT_GET_HANDLER_TYPE, NULL_BYTE]
-        w.append(CMD_GET_HANDLER_TYPE)
-        w.append(index)
-        self.dev.write(w)
-        raw = self.dev.read(PKT_HANDLER_RESPONSE)
+        raw = self._send_command(CMD_GET_HANDLER_TYPE, PKT_GET_HANDLER_TYPE, [index], PKT_HANDLER_RESPONSE)
         return raw[4]
 
     def switch_to_bootloader(self):
         """
         Admin module command to switch to bootloader
         """
-        w = [ADMIN_HANDLER, PKT_DEFAULT, NULL_BYTE]
-        w.append(CMD_SWITCH_TO_BOOT)
-        self.dev.write(w)
+        self._send_command(CMD_SWITCH_TO_BOOT)
 
     def reset(self):
         """
         Admin module command to reset the board
         """
-        w = [ADMIN_HANDLER, PKT_DEFAULT, NULL_BYTE]
-        w.append(CMD_RESET)
-        self.dev.write(w)
+        self._send_command(CMD_RESET)
 
     def force_close_all(self):
         """
         Admin module command to force close all opened modules
         """
-        w = [ADMIN_HANDLER, PKT_DEFAULT, NULL_BYTE]
-        w.append(CMD_CLOSEALL )
-        self.dev.write(w)
-        raw = self.dev.read(PKT_CLOSEALL)
+        raw = self._send_command(CMD_CLOSEALL, read_size=PKT_CLOSEALL)
         return raw[4]
-
