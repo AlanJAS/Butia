@@ -67,7 +67,7 @@ class Baseboard():
             self.dev.write(packet)
         if read_size:
             response = self.dev.read(read_size)
-            return response[4]
+            return response
         return None
 
     def open_baseboard(self):
@@ -167,7 +167,8 @@ class Baseboard():
         """
         Get the size of the list of user modules (listi)
         """
-        return self._send_command(ADMIN_HANDLER, CMD_GET_USER_MODULES_SIZE, read_size=PKT_GET_USER_LINE)
+        raw = self._send_command(ADMIN_HANDLER, CMD_GET_USER_MODULES_SIZE, read_size=PKT_GET_USER_LINE)
+        return raw[4]
 
     def get_user_module_line(self, index):
         """
@@ -184,13 +185,15 @@ class Baseboard():
         """
         Get the number of handlers opened
         """
-        return self._send_command(ADMIN_HANDLER, CMD_GET_HANDLER_SIZE, read_size=PKT_HANDLER_RESPONSE)
+        raw = self._send_command(ADMIN_HANDLER, CMD_GET_HANDLER_SIZE, read_size=PKT_HANDLER_RESPONSE)
+        return raw[4]
 
     def get_handler_type(self, index):
         """
         Get the type of the handler: index (return listi index)
         """
-        return self._send_command(ADMIN_HANDLER, CMD_GET_HANDLER_TYPE, PKT_GET_HANDLER_TYPE, [index], PKT_HANDLER_RESPONSE)
+        raw = self._send_command(ADMIN_HANDLER, CMD_GET_HANDLER_TYPE, PKT_GET_HANDLER_TYPE, [index], PKT_HANDLER_RESPONSE)
+        return raw[4]
 
     def switch_to_bootloader(self):
         """
@@ -208,4 +211,5 @@ class Baseboard():
         """
         Admin module command to force close all opened modules
         """
-        return self._send_command(ADMIN_HANDLER, CMD_CLOSEALL, read_size=PKT_CLOSEALL)
+        raw = self._send_command(ADMIN_HANDLER, CMD_CLOSEALL, read_size=PKT_CLOSEALL)
+        return raw[4]
