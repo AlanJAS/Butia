@@ -56,14 +56,13 @@ class Device():
         """
         Send to the device the specifiy call and parameters
         """
-        w = [self.shifted, 0x03 + len(msg), NULL_BYTE] + msg
-        self.baseboard.dev.write(w)
+        self.baseboard._send_command(self.shifted, msg[0], 0x03 + len(msg), msg[1:])
 
     def read(self, lenght):
         """
         Read the device data
         """
-        raw = self.baseboard.dev.read(0x03 + lenght)
+        raw = self.baseboard._send_command(self.shifted, read_size=0x03 + lenght)
         return raw[3:]
 
     def module_open(self):
@@ -71,18 +70,13 @@ class Device():
         Open this device. Return the handler
         """
         if self.openable:
+
             module_name = self._to_ord(self.name)
             module_name.append(NULL_BYTE)
 
-            w = [ADMIN_HANDLER_SEND_COMMAND]
-            w.append(HEADER_PACKET_SIZE + len(module_name))
-            w.append(NULL_BYTE)
-            w.append(OPEN_COMMAND)
-            w.append(0x01)
-            w.append(0x01)
-            self.baseboard.dev.write(w + module_name)
+            payload = [0x01, 0x01] + module_name
 
-            raw = self.baseboard.dev.read(OPEN_RESPONSE_PACKET_SIZE)
+            raw = self.baseboard._send_command(ADMIN_HANDLER_SEND_COMMAND, OPEN_COMMAND, HEADER_PACKET_SIZE + len(module_name), payload, OPEN_RESPONSE_PACKET_SIZE)
 
             self._debug('device:module_open', raw)
 
@@ -95,9 +89,7 @@ class Device():
 
     def module_close(self):
         if self.openable:
-            w = [ADMIN_HANDLER_SEND_COMMAND, 0x05, NULL_BYTE, CLOSE_COMMAND, self.handler]
-            self.baseboard.dev.write(w)
-            raw = self.baseboard.dev.read(CLOSE_RESPONSE_PACKET_SIZE)
+            raw = self.baseboard._send_command(ADMIN_HANDLER_SEND_COMMAND, CLOSE_COMMAND, 0x05, [self.handler], CLOSE_RESPONSE_PACKET_SIZE)
             return raw[4]
         return ERROR
 
