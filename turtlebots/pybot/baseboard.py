@@ -59,8 +59,8 @@ class Baseboard():
         for i in range(1, 9):
             self.hack_states[i] = 1
 
-    def _send_command(self, command, packet_size=PKT_DEFAULT, payload=None, read_size=None):
-        packet = [ADMIN_HANDLER, packet_size, NULL_BYTE, command]
+    def _send_command(self, handler, command, packet_size=PKT_DEFAULT, payload=None, read_size=None):
+        packet = [handler, packet_size, NULL_BYTE, command]
         if payload:
             packet.extend(payload)
         self.dev.write(packet)
@@ -166,13 +166,13 @@ class Baseboard():
         """
         Get the size of the list of user modules (listi)
         """
-        return self._send_command(CMD_GET_USER_MODULES_SIZE, read_size=PKT_GET_USER_LINE)
+        return self._send_command(ADMIN_HANDLER, CMD_GET_USER_MODULES_SIZE, read_size=PKT_GET_USER_LINE)
 
     def get_user_module_line(self, index):
         """
         Get the name of device with index: index (listi)
         """
-        raw = self._send_command(CMD_GET_USER_MODULE_LINE, PKT_GET_USER_LINE, [index], PKT_GET_LINE_RESPONSE)
+        raw = self._send_command(ADMIN_HANDLER, CMD_GET_USER_MODULE_LINE, PKT_GET_USER_LINE, [index], PKT_GET_LINE_RESPONSE)
         t = ''
         for e in raw[4:]:
             if not(e == NULL_BYTE):
@@ -183,28 +183,28 @@ class Baseboard():
         """
         Get the number of handlers opened
         """
-        return self._send_command(CMD_GET_HANDLER_SIZE, read_size=PKT_HANDLER_RESPONSE)
+        return self._send_command(ADMIN_HANDLER, CMD_GET_HANDLER_SIZE, read_size=PKT_HANDLER_RESPONSE)
 
     def get_handler_type(self, index):
         """
         Get the type of the handler: index (return listi index)
         """
-        return self._send_command(CMD_GET_HANDLER_TYPE, PKT_GET_HANDLER_TYPE, [index], PKT_HANDLER_RESPONSE)
+        return self._send_command(ADMIN_HANDLER, CMD_GET_HANDLER_TYPE, PKT_GET_HANDLER_TYPE, [index], PKT_HANDLER_RESPONSE)
 
     def switch_to_bootloader(self):
         """
         Admin module command to switch to bootloader
         """
-        self._send_command(CMD_SWITCH_TO_BOOT)
+        self._send_command(ADMIN_HANDLER, CMD_SWITCH_TO_BOOT)
 
     def reset(self):
         """
         Admin module command to reset the board
         """
-        self._send_command(CMD_RESET)
+        self._send_command(ADMIN_HANDLER, CMD_RESET)
 
     def force_close_all(self):
         """
         Admin module command to force close all opened modules
         """
-        return self._send_command(CMD_CLOSEALL, read_size=PKT_CLOSEALL)
+        return self._send_command(ADMIN_HANDLER, CMD_CLOSEALL, read_size=PKT_CLOSEALL)
