@@ -264,19 +264,17 @@ class ButiaFunctions:
         """
         Split a modulename: module@board:port to (number, modulename, board)
         """
-        board = '0'
-        number = '0'
-        if mbn.count('@') > 0:
-            modulename, bn = mbn.split('@')
-            if bn.count(':') > 0:
-                board, number = bn.split(':')
+        board, number = '0', '0'
+        modulename = mbn
+        if '@' in mbn:
+            modulename, rest = mbn.split('@')
+            if ':' in rest:
+                board, number = rest.split(':')
             else:
-                board = bn
-        else:
-            if mbn.count(':') > 0:
-                modulename, number = mbn.split(':')
-            else:
-                modulename = mbn
+                board = rest
+        elif ':' in mbn:
+            modulename, number = mbn.split(':')
+
         return (number, modulename, board)
 
     def _get_pybot_version(self):
