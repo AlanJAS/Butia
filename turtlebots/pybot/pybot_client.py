@@ -48,7 +48,7 @@ class robot(ButiaFunctions):
         if auto_connect:
             self.reconnect()
        
-    def _doCommand(self, msg, ret_type = str):
+    def _doCommand(self, msg):
         """
         Executes a command in butia.
         @param msg message to be executed
@@ -65,9 +65,9 @@ class robot(ButiaFunctions):
         except Exception as e:
             self._process_error(e)
         try:
-            ret = ret_type(ret)
+            ret = int(ret)
         except:
-            ret = ERROR
+            pass
         self._lock.release()
         return ret
 
@@ -106,14 +106,14 @@ class robot(ButiaFunctions):
         self._client = None
         return ret
 
-    def callModule(self, modulename, board_number, number, function, params = [], ret_type = int):
+    def callModule(self, modulename, board_number, number, function, params = []):
         """
         call the module 'modulename'
         """
         msg = 'CALL ' + modulename + '@' + str(board_number) + ':' + str(number) + ' ' + function
         if not(params == []):
             msg = msg + ' ' + ' '.join(params)
-        return self._doCommand(msg, ret_type)
+        return self._doCommand(msg)
 
     def closeService(self):
         """
@@ -125,7 +125,7 @@ class robot(ButiaFunctions):
         """
         Gets the number of boards detected
         """
-        return self._doCommand('BUTIA_COUNT', int)
+        return self._doCommand('BUTIA_COUNT')
 
     def getModulesList(self):
         """
@@ -160,13 +160,13 @@ class robot(ButiaFunctions):
         """
         Open the module mod
         """
-        return self._doCommand('OPEN ' + mod, int)
+        return self._doCommand('OPEN ' + mod)
 
     def moduleClose(self, mod):
         """
         Close the module mod
         """
-        return self._doCommand('CLOSE ' + mod, int)
+        return self._doCommand('CLOSE ' + mod)
 
 def show_help():
     print("Open PyBot client in HOST and PORT.")
