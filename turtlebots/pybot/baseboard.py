@@ -59,11 +59,12 @@ class Baseboard():
         for i in range(1, 9):
             self.hack_states[i] = 1
 
-    def _send_command(self, handler, command, packet_size=PKT_DEFAULT, payload=None, read_size=None):
-        packet = [handler, packet_size, NULL_BYTE, command]
-        if payload:
-            packet.extend(payload)
-        self.dev.write(packet)
+    def _send_command(self, handler, command=None, packet_size=PKT_DEFAULT, payload=None, read_size=None):
+        if command:
+            packet = [handler, packet_size, NULL_BYTE, command]
+            if payload:
+                packet.extend(payload)
+            self.dev.write(packet)
         if read_size:
             response = self.dev.read(read_size)
             return response[4]
