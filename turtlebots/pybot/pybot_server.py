@@ -79,11 +79,11 @@ class Server():
         try:
             data = s.recv(BUFSIZ)
             if data:
-				request = data.decode().strip()
-				response = self._process_command(request)
-				s.sendall((response + '\n').encode())
-			else:
-				self._disconnect_client(s, inputs)
+                request = data.decode().strip()
+                response = self._process_command(request)
+                s.sendall((response + '\n').encode())
+            else:
+                self._disconnect_client(s, inputs)
         except Exception as err:
             print('Error con cliente:', err)
             self._disconnect_client(s, inputs)
