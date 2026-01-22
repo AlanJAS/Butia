@@ -83,7 +83,7 @@ first:
 ################################ Dependencies ##################################
 
 install-dependencies:
-	sudo apt-get install debhelper python-gtk2 gettext
+	sudo apt-get install debhelper python3-sugar3 gettext
 
 #################### Initialization of "especific" submodules ##################
 
