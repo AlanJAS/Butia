@@ -28,14 +28,14 @@ import sys
 import socket
 import threading
 import errno
-from functions import ButiaFunctions
+
 
 ERROR = -1
 
 PYBOT_HOST = 'localhost'
 PYBOT_PORT = 2009
 
-class robot(ButiaFunctions):
+class robot():
     
     def __init__(self, host=PYBOT_HOST, port=PYBOT_PORT, auto_connect=True):
         """
