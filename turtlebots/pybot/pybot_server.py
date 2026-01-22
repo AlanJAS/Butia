@@ -58,7 +58,7 @@ class Server():
         while self.run:
 
             try:
-                inputready,outputready,exceptready = select.select(inputs, [], [])
+                inputready,outputready,exceptready = select.select(inputs, [], [], 5.0)
             except Exception as err:
                 print('Error in select', err)
                 break
