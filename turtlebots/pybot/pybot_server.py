@@ -37,7 +37,6 @@ class Server():
     def __init__(self, debug=False, chotox=False):
         self.debug = debug
         self.run = True
-        self.comms = {}
         self.clients = {}
         # Socket
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -79,29 +78,29 @@ class Server():
     def _handle_client(self, s, inputs):
         try:
             data = s.recv(BUFSIZ)
-            data = data.decode()
             if data:
-                result = ''
-                r = data.replace('\r', '')
-                r = r.replace('\n', '')
-                r = r.split(' ')
-                if len(r) > 0:
-                    com = r[0]
-                    if hasattr(self.comms, com):
-                        f = getattr(self.comms, com)
-                        result = f(self, r[1:])
-                    else:
-                        result = "Unknown command '" + com + "'"
-                result = str(result) + '\n'
-                s.send(result.encode())
-            else:
-                s.close()
-                inputs.remove(s)
-                self.clients.pop(s)
+				request = data.decode().strip()
+				response = self._process_command(request)
+				s.sendall((response + '\n').encode())
+			else:
+				self._disconnect_client(s, inputs)
         except Exception as err:
-            print('Error in recv', err)
-            inputs.remove(s)
-            self.clients.pop(s)
+            print('Error con cliente:', err)
+            self._disconnect_client(s, inputs)
+
+    def _process_command(self, request):
+        parts = request.split()
+        command = 'cmd_' + parts[0].upper()
+        args = parts[1:]
+
+        handler = getattr(self, command)
+
+        if not handler:
+            return f"Unknown command '{command}'"
+        try:
+            return str(handler(args))
+        except Exception as err:
+            return f"ERROR: {err}"
 
     def _disconnect_client(self, s, inputs):
         print('Cliente desconnected:', self.clients.get(s))
