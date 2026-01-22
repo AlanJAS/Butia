@@ -27,9 +27,9 @@ NULL_BYTE = 0x00
 OPEN_COMMAND = 0x00
 CLOSE_COMMAND = 0x01
 HEADER_PACKET_SIZE = 0x06
-ADMIN_HANDLER_SEND_COMMAND = 0x00
-OPEN_RESPONSE_PACKET_SIZE = 5
-CLOSE_RESPONSE_PACKET_SIZE = 5
+ADMIN_HANDLER = 0x00
+PKT_OPEN = 0x05
+PKT_CLOSE = 0x05
 READ_HEADER_SIZE = 3
 MAX_BYTES = 64
 
@@ -76,7 +76,7 @@ class Device():
 
             payload = [0x01, 0x01] + module_name
 
-            raw = self.baseboard._send_command(ADMIN_HANDLER_SEND_COMMAND, OPEN_COMMAND, HEADER_PACKET_SIZE + len(module_name), payload, OPEN_RESPONSE_PACKET_SIZE)
+            raw = self.baseboard._send_command(ADMIN_HANDLER, OPEN_COMMAND, HEADER_PACKET_SIZE + len(module_name), payload, PKT_OPEN)
 
             self._debug('device:module_open', raw)
 
@@ -89,7 +89,7 @@ class Device():
 
     def module_close(self):
         if self.openable:
-            raw = self.baseboard._send_command(ADMIN_HANDLER_SEND_COMMAND, CLOSE_COMMAND, 0x05, [self.handler], CLOSE_RESPONSE_PACKET_SIZE)
+            raw = self.baseboard._send_command(ADMIN_HANDLER, CLOSE_COMMAND, 0x05, [self.handler], PKT_CLOSE)
             return raw[4]
         return ERROR
 
