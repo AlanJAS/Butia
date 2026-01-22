@@ -23,7 +23,6 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import sys
-import importlib.machinery
 import select
 import socket
 import usb4butia
@@ -38,8 +37,7 @@ class Server():
     def __init__(self, debug=False, chotox=False):
         self.debug = debug
         self.run = True
-        load = importlib.machinery.SourceFileLoader('server_functions', 'server_functions.py')
-        self.comms = load.load_module()
+        self.comms = {}
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind(("", PYBOT_PORT))
@@ -99,6 +97,90 @@ class Server():
         print('Closing server')
         self.socket.close()
         self.robot.close()
+
+    def cmd_QUIT(self, args):
+        """Close PyBot server"""
+        self.run = False
+        return 'BYE'
+
+    def cmd_REFRESH(self, args):
+        """Search for new devices"""
+        self.robot.refresh()
+        return ''
+
+    def cmd_OPEN(self, args):
+        """Open an 'openable' module such as motors, butia.."""
+        if len(r) == 1:
+            module = args[0]
+            return self.robot.moduleOpen(module)
+        return ''
+
+    def cmd_CLOSE(self, args):
+        """Close an 'openable' module such as motors, butia.."""
+        if len(r) == 1:
+            module = args[0]
+            return self.robot.moduleClose(module)
+        return ''
+
+    def cmd_DESCRIBE(self, args):
+        """Get the list of functions and parameters of a module"""
+        if len(r) == 1:
+            module = args[0]
+            return self.robot.describe(module)
+        return ''
+
+    def cmd_BUTIA_COUNT(self, args):
+        """Get the number of boards connected"""
+        return self.robot.getButiaCount()
+
+    def cmd_LISTI(self, args):
+        """Get a list of instanciables modules of the board"""
+        board = 0
+        if len(args) >= 1:
+            board = args[0]
+        l = self.robot.getListi(board)
+        return ','.join(l)
+
+    def cmd_LIST(self, args):
+        """Get a list of open modules in a board"""
+        l = self.robot.getModulesList()
+        return ','.join(l)
+
+    def cmd_CLIENTS(self, args):
+        """Get a list of current clients in PyBot server"""
+        l = []
+        for c in self.clients:
+            addr = self.clients[c]
+            l.append(str(addr[0]) + ', ' + str(addr[1]))
+        return '\n'.join(l)
+
+    def cmd_CALL(self, args):
+        """Call a function of certain module"""
+        if len(args) >= 2:
+            split = self.robot._split_module(args[0])
+            return self.robot.callModule(split[1], split[2], split[0], args[1], args[2:])
+        return ''
+
+    def cmd_HELP(self, args):
+        """Return a list of commands or the use of specific one"""
+        a = dir(self.comms)
+        l = a[:]
+        if '__builtins__' in a:
+            i = a.index('__builtins__')
+            l = a[:i]
+        if len(r) == 0:
+            return ', '.join(l)
+        else:
+            com = args[0].upper()
+            if com in l:
+                f = getattr(self.comms, com)
+                return f.__doc__
+            return ""
+
+    def cmd_VERSION(self, args):
+        """Return the current version of PyBot library"""
+        return self.robot._get_pybot_version()
+
 
 def show_help():
     print("Open PyBot server in PORT 2009")
