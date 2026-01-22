@@ -24,16 +24,16 @@
 
 
 import os
-import importlib.machinery
+import importlib.util
 import inspect
 import com_usb
 from baseboard import Baseboard
 from device import Device
-from functions import ButiaFunctions
+
 
 ERROR = -1
 
-class USB4Butia(ButiaFunctions):
+class USB4Butia():
 
     def __init__(self, debug=False, get_modules=True):
         self._debug_flag = debug
@@ -129,9 +129,12 @@ class USB4Butia(ButiaFunctions):
         self._debug('Loading driver %s...' % driver)
         abs_path = os.path.abspath(os.path.join(path, driver + '.py'))
         try:
-            load = importlib.machinery.SourceFileLoader(driver, abs_path)
-            self._drivers_loaded[driver] = load.load_module()
-        except:
+            spec = importlib.util.spec_from_file_location(driver, abs_path)
+            if spec and spec.loader:
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                self._drivers_loaded[driver] = module
+        except Exception as e:
             self._debug('ERROR:usb4butia:_get_driver cannot load %s' % driver, abs_path)
         
     def callModule(self, modulename, board_number, number, function, params = []):

@@ -100,7 +100,7 @@ class Server():
         try:
             return str(handler(args))
         except Exception as err:
-            return f"ERROR: {err}"
+            print('Error con cliente:', err)
 
     def _disconnect_client(self, s, inputs):
         print('Cliente desconnected:', self.clients.get(s))
@@ -141,7 +141,7 @@ class Server():
 
     def cmd_DESCRIBE(self, args):
         """Get the list of functions and parameters of a module"""
-        if len(r) == 1:
+        if len(args) == 1:
             module = args[0]
             return self.robot.describe(module)
         return ''
