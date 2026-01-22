@@ -58,11 +58,11 @@ class Device():
         """
         self.baseboard._send_command(self.shifted, msg[0], 0x03 + len(msg), msg[1:])
 
-    def read(self, lenght):
+    def read(self, length):
         """
         Read the device data
         """
-        raw = self.baseboard._send_command(self.shifted, read_size=0x03 + lenght)
+        raw = self.baseboard._send_command(self.shifted, read_size=0x03 + length)
         return raw[3:]
 
     def module_open(self):
