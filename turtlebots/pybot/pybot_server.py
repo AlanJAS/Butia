@@ -38,11 +38,13 @@ class Server():
         self.debug = debug
         self.run = True
         self.comms = {}
+        self.clients = {}
+        # Socket
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind(("", PYBOT_PORT))
         self.socket.listen(MAX_CLIENTS)
-        self.clients = {}
+        # Modo robot
         self.chotox_mode = chotox
         if self.chotox_mode:
             self.robot = com_chotox.Chotox(debug=self.debug)
@@ -54,49 +56,65 @@ class Server():
         inputs = [self.socket]
 
         while self.run:
-
             try:
                 inputready,outputready,exceptready = select.select(inputs, [], [], 5.0)
             except Exception as err:
-                print('Error in select', err)
+                print('Error en select:', err)
                 break
 
             for s in inputready:
-                if s == self.socket:
-                    client, addr = self.socket.accept()
-                    print('New client: ', str(addr))
-                    inputs.append(client)
-                    self.clients[client] = addr
+                if s is self.socket:
+                    self._accept_client(inputs)
                 else:
-                    try:
-                        data = s.recv(BUFSIZ)
-                        data = data.decode()
-                        if data:
-                            result = ''
-                            r = data.replace('\r', '')
-                            r = r.replace('\n', '')
-                            r = r.split(' ')
-                            if len(r) > 0:
-                                com = r[0]
-                                if hasattr(self.comms, com):
-                                    f = getattr(self.comms, com)
-                                    result = f(self, r[1:])
-                                else:
-                                    result = "Unknown command '" + com + "'"
-                            result = str(result) + '\n'
-                            s.send(result.encode())
-                        else:
-                            s.close()
-                            inputs.remove(s)
-                            self.clients.pop(s)
-                    except Exception as err:
-                        print('Error in recv', err)
-                        inputs.remove(s)
-                        self.clients.pop(s)
-                        
+                    self._handle_client(s, inputs)
+
+        self._shutdown()
+
+    def _accept_client(self, inputs):
+        client, addr = self.socket.accept()
+        print('New client:', addr)
+        inputs.append(client)
+        self.clients[client] = addr
+
+    def _handle_client(self, s, inputs):
+        try:
+            data = s.recv(BUFSIZ)
+            data = data.decode()
+            if data:
+                result = ''
+                r = data.replace('\r', '')
+                r = r.replace('\n', '')
+                r = r.split(' ')
+                if len(r) > 0:
+                    com = r[0]
+                    if hasattr(self.comms, com):
+                        f = getattr(self.comms, com)
+                        result = f(self, r[1:])
+                    else:
+                        result = "Unknown command '" + com + "'"
+                result = str(result) + '\n'
+                s.send(result.encode())
+            else:
+                s.close()
+                inputs.remove(s)
+                self.clients.pop(s)
+        except Exception as err:
+            print('Error in recv', err)
+            inputs.remove(s)
+            self.clients.pop(s)
+
+    def _disconnect_client(self, s, inputs):
+        print('Cliente desconnected:', self.clients.get(s))
+        inputs.remove(s)
+        self.clients.pop(s, None)
+        s.close()
+
+    def _shutdown(self):
         print('Closing server')
         self.socket.close()
         self.robot.close()
+
+    #### COMMANDS ###
 
     def cmd_QUIT(self, args):
         """Close PyBot server"""
