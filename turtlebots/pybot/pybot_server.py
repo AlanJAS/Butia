@@ -127,14 +127,14 @@ class Server():
 
     def cmd_OPEN(self, args):
         """Open an 'openable' module such as motors, butia.."""
-        if len(r) == 1:
+        if len(args) == 1:
             module = args[0]
             return self.robot.moduleOpen(module)
         return ''
 
     def cmd_CLOSE(self, args):
         """Close an 'openable' module such as motors, butia.."""
-        if len(r) == 1:
+        if len(args) == 1:
             module = args[0]
             return self.robot.moduleClose(module)
         return ''
@@ -185,7 +185,7 @@ class Server():
         if '__builtins__' in a:
             i = a.index('__builtins__')
             l = a[:i]
-        if len(r) == 0:
+        if len(args) == 0:
             return ', '.join(l)
         else:
             com = args[0].upper()

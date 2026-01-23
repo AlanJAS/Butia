@@ -134,7 +134,7 @@ class USB4Butia():
                 module = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(module)
                 self._drivers_loaded[driver] = module
-        except Exception as e:
+        except Exception:
             self._debug('ERROR:usb4butia:_get_driver cannot load %s' % driver, abs_path)
         
     def callModule(self, modulename, board_number, number, function, params = []):
