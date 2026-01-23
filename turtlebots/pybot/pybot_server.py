@@ -180,17 +180,17 @@ class Server():
 
     def cmd_HELP(self, args):
         """Return a list of commands or the use of specific one"""
-        a = dir(self.comms)
-        l = a[:]
-        if '__builtins__' in a:
-            i = a.index('__builtins__')
-            l = a[:i]
+        a = dir(self)
+        l = []
+        for e in a:
+            if e.startswith('cmd_'):
+                l.append(e[4:])
         if len(args) == 0:
             return ', '.join(l)
         else:
             com = args[0].upper()
             if com in l:
-                f = getattr(self.comms, com)
+                f = getattr(self, 'cmd_' + com)
                 return f.__doc__
             return ""
 
