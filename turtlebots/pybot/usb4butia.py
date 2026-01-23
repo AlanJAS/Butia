@@ -281,17 +281,17 @@ class USB4Butia():
         """
         split = self._split_module(mod)
         mod = split[1]
-        funcs = []
         d = {}
         if mod in self._drivers_loaded:
             driver = self._drivers_loaded[mod]
-            a = dir(driver)
-            if '__package__' in a:
-                funcs = a[a.index('__package__') + 1:]
+            funcs = dir(driver)
+            if '__spec__' in funcs:
+                index = funcs.index('__spec__')
+                funcs = funcs[index:]
             for f in funcs:
                 h = getattr(driver, f)
                 try:
-                    i = inspect.getargspec(h)
+                    i = inspect.getfullargspec(h)
                     parameters = i[0]
                     if 'dev' in parameters:
                         parameters.remove('dev')
