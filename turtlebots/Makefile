@@ -368,7 +368,7 @@ install-strip: install
 	#strip $(DESTDIR) file...
 
 install-rules:
-	if [ -e $(DESTDIR)/lib/udev/rules.d/60-usb4all.rules ] ; then \
+	if [ -e $(DESTDIR)/usr/lib/udev/rules.d/60-usb4all.rules ] ; then \
 		echo Rules already exists ; \
 	else \
 		cp `pwd`/rules/60-lego-nxt.rules $(DESTDIR)/lib/udev/rules.d; \
