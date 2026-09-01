@@ -50,7 +50,7 @@ case "$1" in
             adduser $i robots
         done
         udevadm control --reload-rules
-        service udev restart
+        systemctl restart systemd-udevd.service
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
