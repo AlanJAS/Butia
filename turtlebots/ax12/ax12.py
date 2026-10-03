@@ -176,7 +176,7 @@ class Ax12(Plugin):
             raise logoerror(ERROR_DEG_ABS)
         else:   
             idMotor = int(idMotor)
-            grados = (grados) * 1023 / 300
+            grados = grados * 1023 // 300
             self.butia.jointMode(str(idMotor))
             self.butia.setPosition(str(idMotor), str(abs(grados)))
 
@@ -236,6 +236,5 @@ class Ax12(Plugin):
                 
     def ajustarValor(self, a):
         parte1 = a % 256
-        parte2 = a / 256
+        parte2 = a // 256
         return (parte1 * 256 + parte2)
-
