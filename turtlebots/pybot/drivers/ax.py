@@ -10,7 +10,7 @@ def getVersion(dev):
     return raw[1] + raw[2] * 256
 
 def writeInfo(dev, motor_id, regstart, value):
-    msg = [WRITE_INFO, motor_id, regstart, value / 256, value % 256]
+    msg = [WRITE_INFO, motor_id, regstart, value // 256, value % 256]
     dev.send(msg)
     raw = dev.read(2)
     return raw[1]
@@ -53,16 +53,16 @@ def wheelMode(dev, motor_id):
     return raw[1]
 
 def jointMode(dev, motor_id, _min, _max):
-    msg = [WRITE_INFO, motor_id, 0x06, _min / 256, _min % 256]
+    msg = [WRITE_INFO, motor_id, 0x06, _min // 256, _min % 256]
     dev.send(msg)
     raw = dev.read(2)
-    msg = [WRITE_INFO, motor_id, 0x08, _max / 256, _max % 256]
+    msg = [WRITE_INFO, motor_id, 0x08, _max // 256, _max % 256]
     dev.send(msg)
     raw = dev.read(2)
     return raw[1]
 
 def setPosition(dev, motor_id, pos):
-    msg = [WRITE_INFO, motor_id, 0x1E, pos / 256, pos % 256]
+    msg = [WRITE_INFO, motor_id, 0x1E, pos // 256, pos % 256]
     dev.send(msg)
     raw = dev.read(2)
     return raw[1]
@@ -76,8 +76,7 @@ def getPosition(dev, motor_id):
 
 def setSpeed(dev, motor_id, speed):
     #vel = speed * 1.496
-    msg = [WRITE_INFO, motor_id, 0x20, speed / 256, speed % 256]
+    msg = [WRITE_INFO, motor_id, 0x20, speed // 256, speed % 256]
     dev.send(msg)
     raw = dev.read(2)
     return raw[1]
-
