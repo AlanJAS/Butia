@@ -62,8 +62,9 @@ class usb_device():
         """
         Close the comunication with the baseboard
         """
-        self.dev.__del__()
-        self.dev = None
+        if self.dev is not None:
+            usb.util.dispose_resources(self.dev)
+            self.dev = None
 
     def read(self, size):
         """
@@ -118,4 +119,3 @@ def find():
     except:
         pass
     return l
-
