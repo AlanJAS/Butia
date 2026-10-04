@@ -13,8 +13,8 @@ rm -rf locale
 git init
 git add *
 git commit -m 'all files'
-python setup.py build
-python setup.py dist_xo
+python3 setup.py build
+python3 setup.py dist_xo
 
 cd $CURRDIR
 mv /tmp/staging/ButiaFirmware.activity/dist/*.xo .
