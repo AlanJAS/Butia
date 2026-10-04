@@ -289,7 +289,7 @@ plugin-butia: apply_hard_plugins
 
 plugin-fischer: apply_hard_plugins
 	cp stagin/plugins/fischer/plugin.info $(BUILDDIR)/plugins
-	(cd $(BUILDDIR)/plugins && tar -czvf fischer_plugin.tar.gz followme/* plugin.info)
+	(cd $(BUILDDIR)/plugins && tar -czvf fischer_plugin.tar.gz fischer/* plugin.info)
 	rm $(BUILDDIR)/plugins/plugin.info
 	mv $(BUILDDIR)/plugins/fischer_plugin.tar.gz .
 
@@ -301,7 +301,7 @@ plugin-followme: apply_hard_plugins
 
 plugin-colorview: apply_hard_plugins
 	cp stagin/plugins/colorview/plugin.info $(BUILDDIR)/plugins
-	(cd $(BUILDDIR)/plugins && tar -czvf colorview_plugin.tar.gz followme/* plugin.info)
+	(cd $(BUILDDIR)/plugins && tar -czvf colorview_plugin.tar.gz colorview/* plugin.info)
 	rm $(BUILDDIR)/plugins/plugin.info
 	mv $(BUILDDIR)/plugins/colorview_plugin.tar.gz .
 
